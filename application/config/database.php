@@ -48,11 +48,11 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'Driver={Microsoft Access Driver (*.mdb)};DBQ=D:\UPJ\Attendance\att2000.mdb';
-$db['default']['username'] = '';
-$db['default']['password'] = '';
-$db['default']['database'] = 'Driver={Microsoft Access Driver (*.mdb)};DBQ=D:\UPJ\Attendance\att2000.mdb';
-$db['default']['dbdriver'] = 'odbc';
+$db['default']['hostname'] = 'localhost';
+$db['default']['username'] = 'root';
+$db['default']['password'] = 'Upeje2013';
+$db['default']['database'] = 'presensi';
+$db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
 $db['default']['db_debug'] = TRUE;
