@@ -84,5 +84,43 @@
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
 
+<table>
+<?php
+$a = sizeof($att_prsn);
+$i = 1;
+$j = 0;
+//$arrtemp = explode('-', (isset($filter_mmyyyy)?$filter_mmyyyy:'09-2013'));
+//$numdays = days_in_month($arrtemp[0], $arrtemp[1]); //input 06 2012
+while ($i <= 31) {
+    if ($i < 10) {
+        $tgl = alternator('01','02','03','04','05','06','07','08','09');
+    } else {
+        $tgl = $i;
+    }
+    $txtDay = mdate("%D", mktime(0, 0, 0, 9, $i, 2013)); //input 1,2,10,11
+    $i++;
+    $full_date = $tgl."/".$filter_mmyyyy;
+    
+    $compare = isset($att_prsn[$j]->tgl_presensi)?$att_prsn[$j]->tgl_presensi: '';
+    
+    if (in_array($txtDay, $filter_libur)) {
+        $libur = "LIBUR";
+    } else {
+        $libur = "";
+    }
+    
+    if ($full_date === $compare) {
+        echo "<tr><td>$compare</td><td>$txtDay</td><td>".$att_prsn[$j]->jam_masuk."</td><td>".$att_prsn[$j]->jam_keluar."</td><td>".$att_prsn[$j]->waktu_telat."</td><td>".($att_prsn[$j]->is_late?"TERLAMBAT":"")."</td></tr>";
+        if ($a >= $j) {
+            $j++;
+        }
+    } else {
+        echo "<tr><td>$full_date</td><td>$txtDay</td><td>$libur</td><td>$libur</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
+    }
+}
+
+print_r($att_prsn);
+?>
+</table>
 </body>
 </html>
