@@ -67,12 +67,12 @@ class Import extends CI_Controller {
             FROM CHECKINOUT 
             WHERE DATEVALUE(CHECKTIME) >= '12/1/2013' AND DATEVALUE(CHECKTIME) <= '12/31/2013'";
         */
-        /*$sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
+        $sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
             CHECKTYPE AS check_type, VERIFYCODE AS verify_code, SENSORID AS sensor_id, 
             WORKCODE AS work_code, sn 
-            FROM CHECKINOUT 
-            WHERE USERID >= 116 AND USERID <= 135";
-        */
+            FROM CHECKINOUT"; 
+        //    WHERE USERID >= 116 AND USERID <= 135";
+        
         /*$sql_mdb = "SELECT DEPTID AS dept_id, DEPTNAME AS dept_name, SUPDEPTID AS sup_dept_id, 
             InheritParentSch AS inherit_parent_sch, InheritDeptSch AS inherit_dept_sch, 
             InheritDeptSchClass AS inherit_dept_sch_class, AutoSchPlan AS auto_sch_plan, 
@@ -81,7 +81,7 @@ class Import extends CI_Controller {
             DefaultSchId AS default_sch_id, att, holiday, OverTime AS over_time 
             FROM DEPARTMENTS";
         */
-       $sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
+        /*$sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
            pager, BIRTHDAY AS birth_day, HIREDDAY AS hired_day, street, city, state, zip, 
            OPHONE AS o_phone, FPHONE AS f_phone, VERIFICATIONMETHOD AS verification_method, 
            DEFAULTDEPTID AS default_dept_id, SECURITYFLAGS AS security_flags, att, INLATE AS in_late, 
@@ -91,7 +91,7 @@ class Import extends CI_Controller {
            MinAutoSchInterval AS min_auto_sch_interval, RegisterOT AS register_ot, 
            InheritDeptRule AS inherit_dept_rule, emprivilege, CardNo AS card_no, pin1
            FROM USERINFO";
-        
+        */
         $qry_mdb = $db_mdb->query($sql_mdb);
         
         echo "query mdb finish next trans";
@@ -99,7 +99,7 @@ class Import extends CI_Controller {
         $db_mysql->trans_start();
         
         foreach ($qry_mdb->result() as $row_mdb) {
-            /*$data_mysql = array(
+            $data_mysql = array(
                 'user_id' => $row_mdb->user_id,
                 'check_time' => $row_mdb->check_time,
                 'check_type' => $row_mdb->check_type,
@@ -108,7 +108,7 @@ class Import extends CI_Controller {
                 'work_code' => $row_mdb->work_code,
                 'sn' => $row_mdb->sn
             );
-            */
+            
             /*$data_mysql = array(
                 'dept_id' => $row_mdb->dept_id,
                 'dept_name' => $row_mdb->dept_name,
@@ -128,7 +128,7 @@ class Import extends CI_Controller {
                 'over_time' => $row_mdb->over_time
             );
             */
-            $data_mysql = array(
+            /*$data_mysql = array(
                 'user_id' => $row_mdb->user_id,
                 'badge_number' => $row_mdb->badge_number,
                 'ssn' => $row_mdb->ssn,
@@ -170,12 +170,13 @@ class Import extends CI_Controller {
                 'card_no' => $row_mdb->card_no,
                 'pin1' => $row_mdb->pin1               
             );
+            */
             
             print_r($data_mysql);
             
-            //$db_mysql->insert('mdb_checkinout', $data_mysql);
+            $db_mysql->insert('mdb_checkinout', $data_mysql);
             //$db_mysql->insert('mdb_departments', $data_mysql);
-            $db_mysql->insert('mdb_userinfo', $data_mysql);
+            //$db_mysql->insert('mdb_userinfo', $data_mysql);
             
             //echo "insert data to mysql finish ".$row_mdb->user_id;
         }

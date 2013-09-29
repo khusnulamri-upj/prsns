@@ -95,6 +95,9 @@
                     $a = sizeof($att_prsn);
                     $i = 1;
                     $j = 0;
+                    $ttl_waktu_telat = null;
+                    $ttl_telat = 0;
+                    $ttl_hadir = 0;
                     //$arrtemp = explode('-', (isset($filter_mmyyyy)?$filter_mmyyyy:'09-2013'));
                     //$numdays = days_in_month($arrtemp[0], $arrtemp[1]); //input 06 2012
                     while ($i <= $att_loop) {
@@ -119,15 +122,21 @@
                             if ($att_prsn[$j]->is_late) {
                                 $redText = " style=\"color: #C00000;\"";
                                 $redText2 = " style=\"color: #C00000;\"";
-                                if ($att_prsn[$j]->is_same) {
+                                if (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar)) {
                                     $redText2 = "";
                                 }
+                                $ttl_telat++;
                             } else {
                                 $redText = "";
                                 $redText2 = "";
                             }
                             
-                            echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->waktu_telat . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : ($att_prsn[$j]->is_late ? "TERLAMBAT" : "")) . "</td></tr>";
+                            //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->waktu_telat . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : ($att_prsn[$j]->is_late ? "TERLAMBAT" : "")) . "</td></tr>";
+                            echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                            if ($att_prsn[$j]->is_late) {
+                                $ttl_waktu_telat = $ttl_waktu_telat+$att_prsn[$j]->sec_waktu_telat;
+                            }
+                            $ttl_hadir++;
                             if ($a >= $j) {
                                 $j++;
                             }
@@ -137,10 +146,13 @@
                                 $liburRow = " style=\"color: white; background-color: #C00000; font-weight:bold; opacity:0.7;\"";
                                 echo "<tr".$liburRow."><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">&nbsp;</td></tr>";
                             } else {
-                                echo "<tr><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">&nbsp;</td></tr>";
+                                echo "<tr><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">$opsi_ket</td></tr>";
                             }
                         }
                     }
+                    echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td colspan=\"2\" class=\"lstc\">Total Durasi Keterlambatan</td><td class=\"lstc\">".mdate("%H:%i", mktime(0, 0, (empty($ttl_waktu_telat)?0:$ttl_waktu_telat), 0, 0, 0))."</td></tr>";
+                    echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td colspan=\"2\" class=\"lstc\">Total Keterlambatan (hari)</td><td class=\"lstc\">$ttl_telat</td></tr>";
+                    echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td colspan=\"2\" class=\"lstc\">Total Kehadiran (hari)</td><td class=\"lstc\">$ttl_hadir</td></tr>";
                     ?>
                 </table>
                 <p style="font-size: 4px;"><?= $att_kode ?></p>
