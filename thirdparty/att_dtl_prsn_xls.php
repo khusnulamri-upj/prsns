@@ -34,8 +34,14 @@ $month = $arr[0];
 $year = $arr[1];
 $user_id = $arr[2];
 
-$jam_telat_masuk = '07:40:00';
-$jam_tengah = '12:00:00';
+//$jam_telat_masuk = '07:40:00';
+//$jam_tengah = '12:00:00';
+
+$jam_telat_masuk = '07:40';
+$jam_tengah = '12:00';
+
+//$time_format = "%T";
+$time_format = "%H:%i";
 
 $filter_libur = array('Sat', 'Sun');
 $filter_mmyyyy = (($month < 10) ? "0" . $month : $month) . "/" . $year;
@@ -112,12 +118,12 @@ if ($user_id == 'ALL') {
     SELECT A.*
     FROM (
     SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi, 
-    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')) AS jam_masuk,
-    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'%T')) > 0,'',DATE_FORMAT(MAX(io.check_time),'%T')) AS jam_keluar,
-    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk')) AS waktu_telat,
-    IF(DATE_FORMAT(MIN(io.check_time),'%T') > '$jam_telat_masuk', 1, 0) AS is_late,
-    IF(DATE_FORMAT(MIN(io.check_time),'%T') = DATE_FORMAT(MAX(io.check_time),'%T'), 1, 0) AS is_same,
-    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk'))) AS sec_waktu_telat,
+    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
+    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
+    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk')) AS waktu_telat,
+    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_telat_masuk', 1, 0) AS is_late,
+    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
+    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk'))) AS sec_waktu_telat,
     NULL AS ket
     FROM mdb_checkinout io
     WHERE io.user_id = $user_id
@@ -241,7 +247,7 @@ if ($user_id == 'ALL') {
                     $col2 = $txtDay;
                     $col3 = $resultArr[$j]->jam_masuk;
                     $col4 = $resultArr[$j]->jam_keluar;
-                    $col5 = $resultArr[$j]->waktu_telat;
+                    $col5 = ($resultArr[$j]->waktu_telat != '')?substr($resultArr[$j]->waktu_telat,0,5):'';
                     $col6 = (empty($resultArr[$j]->ket) ? (empty($resultArr[$j]->jam_masuk) || empty($resultArr[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") : $resultArr[$j]->ket);
                     //$col6 = (empty($resultArr[$j]->ket)?($resultArr[$j]->is_same ? "TIDAK LENGKAP" : ""):$resultArr[$j]->ket);
                     if ($resultArr[$j]->is_late) {
@@ -344,11 +350,12 @@ if ($user_id == 'ALL') {
         $callTime = $callEndTime - $callStartTime;
 
         //echo date('H:i:s'), " File written to ", str_replace('.php', '.xls', pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME)), EOL;
-        echo date('H:i:s'), pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME), " Created ", EOL;
+        echo date('H:i:s'), ' '.pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME), " Created ", EOL;
         //echo 'Call time to write Workbook was ', sprintf('%.4f', $callTime), " seconds", EOL;
 // Echo memory usage
         //echo date('H:i:s'), ' Current memory usage: ', (memory_get_usage(true) / 1024 / 1024), " MB", EOL;
     }
+    echo "<p><a href=\"../xls\">Lihat Files</a></p>";
     echo "<p><a href=\"../index.php/att_rpt/lst\">Kembali</a></p>";
 } else {
     $sqlqry = "SELECT u.name AS nama, d.dept_name AS dept
@@ -378,12 +385,12 @@ if ($user_id == 'ALL') {
     SELECT A.*
     FROM (
     SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi, 
-    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')) AS jam_masuk,
-    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'%T')) > 0,'',DATE_FORMAT(MAX(io.check_time),'%T')) AS jam_keluar,
-    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk')) AS waktu_telat,
-    IF(DATE_FORMAT(MIN(io.check_time),'%T') > '$jam_telat_masuk', 1, 0) AS is_late,
-    IF(DATE_FORMAT(MIN(io.check_time),'%T') = DATE_FORMAT(MAX(io.check_time),'%T'), 1, 0) AS is_same,
-    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'%T'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'%T')),'$jam_telat_masuk'))) AS sec_waktu_telat,
+    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
+    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
+    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk')) AS waktu_telat,
+    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_telat_masuk', 1, 0) AS is_late,
+    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
+    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk'))) AS sec_waktu_telat,
     NULL AS ket
     FROM mdb_checkinout io
     WHERE io.user_id = $user_id
@@ -536,7 +543,7 @@ if ($user_id == 'ALL') {
             $col2 = $txtDay;
             $col3 = $resultArr[$j]->jam_masuk;
             $col4 = $resultArr[$j]->jam_keluar;
-            $col5 = $resultArr[$j]->waktu_telat;
+            $col5 = ($resultArr[$j]->waktu_telat != '')?substr($resultArr[$j]->waktu_telat,0,5):'';
             $col6 = (empty($resultArr[$j]->ket) ? (empty($resultArr[$j]->jam_masuk) || empty($resultArr[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") : $resultArr[$j]->ket);
             //$col6 = (empty($resultArr[$j]->ket)?($resultArr[$j]->is_same ? "TIDAK LENGKAP" : ""):$resultArr[$j]->ket);
             if ($resultArr[$j]->is_late) {
