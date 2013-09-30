@@ -91,6 +91,7 @@
                 <table>
                     <tr><td style="width:50px;">Bagian</td><td>:</td><td><?= $att_dept ?></td></tr>
                     <tr><td>Nama</td><td>:</td><td><?= $att_nama ?></td></tr>
+                    <tr><td>Bulan</td><td>:</td><td><?= date("F Y", mktime(0, 0, 0, $att_mnth + 1, 0, $att_year)) ?></td></tr>
                 </table>
                 <br/>
                 <table class="lst">
@@ -151,9 +152,9 @@
                             
                             //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->waktu_telat . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : ($att_prsn[$j]->is_late ? "TERLAMBAT" : "")) . "</td></tr>";
                             if (isset($drop_ket)) {
-                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . $drop_ket . "</td></tr>";
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->jam_masuk,0,5) . "</td><td class=\"lstc\">" . substr($att_prsn[$j]->jam_keluar,0,5) . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . $drop_ket . "</td></tr>";
                             } else {
-                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->jam_masuk,0,5) . "</td><td class=\"lstc\">" . substr($att_prsn[$j]->jam_keluar,0,5) . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
                                 //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : "") . "</td></tr>";
                             }
                             $drop_ket = "";

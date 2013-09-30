@@ -50,17 +50,19 @@ class Att_rpt extends CI_Controller {
         $month = $this->input->post('month');
         $year = $this->input->post('year');
         $user_id = $this->input->post('user_id');
-
+        
         if (empty($user_id)) {
             redirect('att_rpt/lst', 'location');
+        } else if ($user_id == 'ALL') {
+            redirect(site_url("att_rpt/dtl_prsn_xls/".$month."_".$year."_ALL"), 'location');
         }
 
-        $jam_telat_masuk = '07:40:00';
+        $jam_telat_masuk = '07:40:59';
         $jam_tengah = '12:00:00';
 
         $data['filter_libur'] = array('Sat', 'Sun');
         $data['filter_mmyyyy'] = (($month < 10) ? "0" . $month : $month) . "/" . $year;
-
+        
         $sql = "SELECT content, opt_keterangan_id AS id
             FROM opt_keterangan
             ORDER BY content";
@@ -135,6 +137,7 @@ class Att_rpt extends CI_Controller {
         $data['att_kode'] = "attrpt0A [" . $month . "_" . $year . "_" . $user_id . "]";
         $data['att_filter'] = $month . "_" . $year . "_" . $user_id;
         $data['att_mnth'] = $month;
+        //$data['att_mnth_name'] = $month;
         $data['att_year'] = $year;
         $data['att_nama'] = $row->name;
         $data['att_dept'] = $row->dept_name;
