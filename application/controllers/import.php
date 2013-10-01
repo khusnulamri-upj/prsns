@@ -61,6 +61,11 @@ class Import extends CI_Controller {
         echo "load 2 db finish";
         
         //$qry_mdb = $db_mdb->query("SELECT USERID AS user_id, CHECKTIME AS check_time FROM CHECKINOUT");
+        $sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
+            CHECKTYPE AS check_type, VERIFYCODE AS verify_code, SENSORID AS sensor_id, 
+            WORKCODE AS work_code, sn 
+            FROM CHECKINOUT";
+        
         /*$sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
             CHECKTYPE AS check_type, VERIFYCODE AS verify_code, SENSORID AS sensor_id, 
             WORKCODE AS work_code, sn 
@@ -79,9 +84,9 @@ class Import extends CI_Controller {
             InLate AS in_late, OutEarly AS out_early, InheritDeptRule AS inherit_dept_rule, 
             MinAutoSchInterval AS min_auto_sch_interval, RegisterOT AS register_ot, 
             DefaultSchId AS default_sch_id, att, holiday, OverTime AS over_time 
-            FROM DEPARTMENTS";
-        */
-       $sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
+            FROM DEPARTMENTS";*/
+        
+       /*$sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
            pager, BIRTHDAY AS birth_day, HIREDDAY AS hired_day, street, city, state, zip, 
            OPHONE AS o_phone, FPHONE AS f_phone, VERIFICATIONMETHOD AS verification_method, 
            DEFAULTDEPTID AS default_dept_id, SECURITYFLAGS AS security_flags, att, INLATE AS in_late, 
@@ -90,7 +95,7 @@ class Import extends CI_Controller {
            InheritDeptSchClass AS inherit_dept_sch_class, AutoSchPlan AS auto_sch_plan, 
            MinAutoSchInterval AS min_auto_sch_interval, RegisterOT AS register_ot, 
            InheritDeptRule AS inherit_dept_rule, emprivilege, CardNo AS card_no, pin1
-           FROM USERINFO";
+           FROM USERINFO";*/
         
         $qry_mdb = $db_mdb->query($sql_mdb);
         
@@ -99,7 +104,7 @@ class Import extends CI_Controller {
         $db_mysql->trans_start();
         
         foreach ($qry_mdb->result() as $row_mdb) {
-            /*$data_mysql = array(
+            $data_mysql = array(
                 'user_id' => $row_mdb->user_id,
                 'check_time' => $row_mdb->check_time,
                 'check_type' => $row_mdb->check_type,
@@ -108,7 +113,7 @@ class Import extends CI_Controller {
                 'work_code' => $row_mdb->work_code,
                 'sn' => $row_mdb->sn
             );
-            */
+            
             /*$data_mysql = array(
                 'dept_id' => $row_mdb->dept_id,
                 'dept_name' => $row_mdb->dept_name,
@@ -126,9 +131,9 @@ class Import extends CI_Controller {
                 'att' => $row_mdb->att,
                 'holiday' => $row_mdb->holiday,
                 'over_time' => $row_mdb->over_time
-            );
-            */
-            $data_mysql = array(
+            );*/
+            
+            /*$data_mysql = array(
                 'user_id' => $row_mdb->user_id,
                 'badge_number' => $row_mdb->badge_number,
                 'ssn' => $row_mdb->ssn,
@@ -169,13 +174,13 @@ class Import extends CI_Controller {
                 'emprivilege' => $row_mdb->emprivilege,
                 'card_no' => $row_mdb->card_no,
                 'pin1' => $row_mdb->pin1               
-            );
+            );*/
             
             print_r($data_mysql);
             
-            //$db_mysql->insert('mdb_checkinout', $data_mysql);
+            $db_mysql->insert('mdb_checkinout', $data_mysql);
             //$db_mysql->insert('mdb_departments', $data_mysql);
-            $db_mysql->insert('mdb_userinfo', $data_mysql);
+            //$db_mysql->insert('mdb_userinfo', $data_mysql);
             
             //echo "insert data to mysql finish ".$row_mdb->user_id;
         }
