@@ -109,7 +109,7 @@ $autoload['language'] = array();
 |
 */
 
-$autoload['model'] = array();
+$autoload['model'] = array('Parameter','Custom_date');
 
 
 /* End of file autoload.php */
