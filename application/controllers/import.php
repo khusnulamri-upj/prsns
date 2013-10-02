@@ -4,7 +4,9 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
 class Import extends CI_Controller {
-
+    
+    var $mdb_config = array();
+    
     public function index() {
         $config['hostname'] = "Driver={Microsoft Access Driver (*.mdb)};DBQ=D:\UPJ\Attendance\att2000.mdb";
         $config['username'] = "";
@@ -34,13 +36,33 @@ class Import extends CI_Controller {
     }
 
     public function setting() {
-        //$this->session->set_userdata('import_mdb_file_path', 'some_value');
+        $file_path = "D:\UPJ\Attendance\att2000.mdb";
+        $this->session->set_userdata('import_mdb_file_path', $file_path);
+        
+        //echo $file_path;
+        
+        //echo $this->session->userdata('import_mdb_file_path');
+    }
+    
+    public function setting2() {
+        //$file_path = "D:\UPJ\Attendance\att2000.mdb";
+        //$this->session->set_userdata('import_mdb_file_path', $file_path);
+        
+        //echo $file_path;
+        
+        echo $this->session->userdata('import_mdb_file_path');
+    }
+    
+    public function mdb() {
+        $this->load->view('imp_act');
     }
 
-    public function mdb() {
-        //$file_path = $this->session->userdata('import_mdb_file_path');
+    public function mdb_checkinout() {
+        $file_path = $this->session->userdata('import_mdb_file_path');
 
-        $file_path = "D:\UPJ\Attendance\att2000.mdb";
+        echo $file_path;
+
+        //$file_path = "D:\UPJ\Attendance\att2000.mdb";
 
         $config['hostname'] = "Driver={Microsoft Access Driver (*.mdb)}; DBQ=" . $file_path;
         $config['username'] = "";
@@ -56,11 +78,16 @@ class Import extends CI_Controller {
         $config['dbcollat'] = "utf8_general_ci";
 
         $db_mdb = $this->load->database($config, TRUE);
-        $db_mysql = $this->load->database('default', TRUE);
+        $db_mysql = $this->load->database('temporary', TRUE);
         
         echo "load 2 db finish";
         
         //$qry_mdb = $db_mdb->query("SELECT USERID AS user_id, CHECKTIME AS check_time FROM CHECKINOUT");
+        $sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
+            CHECKTYPE AS check_type, VERIFYCODE AS verify_code, SENSORID AS sensor_id, 
+            WORKCODE AS work_code, sn 
+            FROM CHECKINOUT";
+        
         /*$sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
             CHECKTYPE AS check_type, VERIFYCODE AS verify_code, SENSORID AS sensor_id, 
             WORKCODE AS work_code, sn 
@@ -79,9 +106,9 @@ class Import extends CI_Controller {
             InLate AS in_late, OutEarly AS out_early, InheritDeptRule AS inherit_dept_rule, 
             MinAutoSchInterval AS min_auto_sch_interval, RegisterOT AS register_ot, 
             DefaultSchId AS default_sch_id, att, holiday, OverTime AS over_time 
-            FROM DEPARTMENTS";
-        */
-        /*$sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
+            FROM DEPARTMENTS";*/
+        
+       /*$sql_mdb = "SELECT USERID AS user_id, Badgenumber AS badge_number, ssn, name, gender, title, 
            pager, BIRTHDAY AS birth_day, HIREDDAY AS hired_day, street, city, state, zip, 
            OPHONE AS o_phone, FPHONE AS f_phone, VERIFICATIONMETHOD AS verification_method, 
            DEFAULTDEPTID AS default_dept_id, SECURITYFLAGS AS security_flags, att, INLATE AS in_late, 
@@ -90,8 +117,8 @@ class Import extends CI_Controller {
            InheritDeptSchClass AS inherit_dept_sch_class, AutoSchPlan AS auto_sch_plan, 
            MinAutoSchInterval AS min_auto_sch_interval, RegisterOT AS register_ot, 
            InheritDeptRule AS inherit_dept_rule, emprivilege, CardNo AS card_no, pin1
-           FROM USERINFO";
-        */
+           FROM USERINFO";*/
+        
         $qry_mdb = $db_mdb->query($sql_mdb);
         
         echo "query mdb finish next trans";
@@ -126,8 +153,8 @@ class Import extends CI_Controller {
                 'att' => $row_mdb->att,
                 'holiday' => $row_mdb->holiday,
                 'over_time' => $row_mdb->over_time
-            );
-            */
+            );*/
+            
             /*$data_mysql = array(
                 'user_id' => $row_mdb->user_id,
                 'badge_number' => $row_mdb->badge_number,
@@ -169,8 +196,7 @@ class Import extends CI_Controller {
                 'emprivilege' => $row_mdb->emprivilege,
                 'card_no' => $row_mdb->card_no,
                 'pin1' => $row_mdb->pin1               
-            );
-            */
+            );*/
             
             print_r($data_mysql);
             

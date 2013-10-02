@@ -80,6 +80,8 @@
                         $year_lst[$y->year] = $y->year;
                     }
                     
+                    $options['ALL'] = 'ALL';
+                    
                     foreach ($prsn as $p) {
                         $options[$p->user_id] = strtoupper($p->name);
                     }

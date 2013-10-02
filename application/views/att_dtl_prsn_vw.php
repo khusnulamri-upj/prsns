@@ -81,10 +81,17 @@
             <h1>Attendance Information System</h1>
 
             <div id="body">
+                <?php
+                echo form_open('att_rpt/dtl_prsn_sv_ket');
+                echo form_hidden('user_id', $att_user_id);
+                echo form_hidden('month', $att_mnth);
+                echo form_hidden('year', $att_year);
+                ?>
                 <h3>Laporan Kedatangan dan Kepulangan Personil</h3>
                 <table>
                     <tr><td style="width:50px;">Bagian</td><td>:</td><td><?= $att_dept ?></td></tr>
                     <tr><td>Nama</td><td>:</td><td><?= $att_nama ?></td></tr>
+                    <tr><td>Bulan</td><td>:</td><td><?= date("F Y", mktime(0, 0, 0, $att_mnth + 1, 0, $att_year)) ?></td></tr>
                 </table>
                 <br/>
                 <table class="lst">
@@ -98,6 +105,10 @@
                     $ttl_waktu_telat = null;
                     $ttl_telat = 0;
                     $ttl_hadir = 0;
+                    $opt_ket[0] = "";
+                    foreach ($att_opt_ket as $k) {
+                        $opt_ket[$k->id] = $k->content;
+                    }
                     //$arrtemp = explode('-', (isset($filter_mmyyyy)?$filter_mmyyyy:'09-2013'));
                     //$numdays = days_in_month($arrtemp[0], $arrtemp[1]); //input 06 2012
                     while ($i <= $att_loop) {
@@ -107,6 +118,7 @@
                             $tgl = $i;
                         }
                         $txtDay = mdate("%D", mktime(0, 0, 0, $att_mnth, $i, $att_year)); //input 1,2,10,11
+                        $idx_drop = $i;
                         $i++;
                         $full_date = $tgl . "/" . $filter_mmyyyy;
 
@@ -122,21 +134,34 @@
                             if ($att_prsn[$j]->is_late) {
                                 $redText = " style=\"color: #C00000;\"";
                                 $redText2 = " style=\"color: #C00000;\"";
+                                //if ($att_prsn[$j]->is_same) {
                                 if (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar)) {
                                     $redText2 = "";
                                 }
-                                $ttl_telat++;
+                                $ttl_telat++; 
                             } else {
                                 $redText = "";
                                 $redText2 = "";
                             }
                             
+                            if (isset($att_prsn[$j]->ket)) {
+                                $drop_ket = form_dropdown('ket['.$idx_drop.']', $opt_ket, $att_prsn[$j]->ket);
+                            } else {
+                                $drop_ket = null;
+                            }
+                            
                             //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->waktu_telat . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : ($att_prsn[$j]->is_late ? "TERLAMBAT" : "")) . "</td></tr>";
-                            echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                            if (isset($drop_ket)) {
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . $drop_ket . "</td></tr>";
+                            } else {
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                                //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                            }
+                            $drop_ket = "";
                             if ($att_prsn[$j]->is_late) {
                                 $ttl_waktu_telat = $ttl_waktu_telat+$att_prsn[$j]->sec_waktu_telat;
                             }
-                            $ttl_hadir++;
+                            $ttl_hadir++; 
                             if ($a >= $j) {
                                 $j++;
                             }
@@ -146,7 +171,9 @@
                                 $liburRow = " style=\"color: white; background-color: #C00000; font-weight:bold; opacity:0.7;\"";
                                 echo "<tr".$liburRow."><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">&nbsp;</td></tr>";
                             } else {
-                                echo "<tr><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">$opsi_ket</td></tr>";
+                                //echo "<tr><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">&nbsp;</td></tr>";
+                                //print_r($att_opt_ket);
+                                echo "<tr><td class=\"lstc\">$full_date</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\">$libur</td><td class=\"lstc\">$libur</td><td class=\"lstc\">&nbsp;</td><td class=\"lstc\">".form_dropdown('ket['.$idx_drop.']', $opt_ket)."</td></tr>"; 
                             }
                         }
                     }
@@ -156,8 +183,10 @@
                     ?>
                 </table>
                 <p style="font-size: 4px;"><?= $att_kode ?></p>
+                <p><?= form_submit('save', 'Simpan'); ?></p>
                 <p><a href="<?= site_url("att_rpt/dtl_prsn_xls/$att_filter"); ?>">Eksport ke XLS</a></p>
                 <p><a href="<?= site_url("att_rpt/lst"); ?>">Kembali</a></p>
+                <?= form_close(); ?>
             </div>
 
             <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
