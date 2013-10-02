@@ -25,7 +25,6 @@ class Custom_date extends CI_Model {
             } else {
                 $array[$i] = date("F", mktime(0, 0, 0, $i + 1, 0, 0));
             }
-            
         }
         return $array;
     }
@@ -39,8 +38,7 @@ class Custom_date extends CI_Model {
             return $array;
         } else {
             return NULL;
-        }
-        
+        }   
     }
     
     function get_indonesia_month($id) {
@@ -49,7 +47,6 @@ class Custom_date extends CI_Model {
         } else {
             return NULL;
         }
-        
     }
 }
 

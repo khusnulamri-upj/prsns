@@ -64,6 +64,22 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
+$db['temporary']['hostname'] = 'localhost';
+$db['temporary']['username'] = 'root';
+$db['temporary']['password'] = 'Upeje2013';
+$db['temporary']['database'] = 'presensi_temp';
+$db['temporary']['dbdriver'] = 'mysql';
+$db['temporary']['dbprefix'] = '';
+$db['temporary']['pconnect'] = TRUE;
+$db['temporary']['db_debug'] = TRUE;
+$db['temporary']['cache_on'] = FALSE;
+$db['temporary']['cachedir'] = '';
+$db['temporary']['char_set'] = 'utf8';
+$db['temporary']['dbcollat'] = 'utf8_general_ci';
+$db['temporary']['swap_pre'] = '';
+$db['temporary']['autoinit'] = TRUE;
+$db['temporary']['stricton'] = FALSE;
+
 
 /* End of file database.php */
 /* Location: ./application/config/database.php */

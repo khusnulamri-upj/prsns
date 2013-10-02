@@ -4,77 +4,8 @@
         <meta charset="utf-8">
         <title>Attendance Information System</title>
 
-        <style type="text/css">
-
-            ::selection{ background-color: #E13300; color: white; }
-            ::moz-selection{ background-color: #E13300; color: white; }
-            ::webkit-selection{ background-color: #E13300; color: white; }
-
-            body {
-                background-color: #fff;
-                margin: 40px;
-                font: 13px/20px normal Helvetica, Arial, sans-serif;
-                color: #4F5155;
-            }
-
-            a {
-                color: #003399;
-                background-color: transparent;
-                font-weight: normal;
-            }
-
-            h1 {
-                color: #002166;
-                background-color: transparent;
-                border-bottom: 1px solid #D0D0D0;
-                font-size: 19px;
-                font-weight: normal;
-                margin: 0 0 14px 0;
-                padding: 14px 15px 10px 15px;
-            }
-
-            code {
-                font-family: Consolas, Monaco, Courier New, Courier, monospace;
-                font-size: 12px;
-                background-color: #f9f9f9;
-                border: 1px solid #D0D0D0;
-                color: #002166;
-                display: block;
-                margin: 14px 0 14px 0;
-                padding: 12px 10px 12px 10px;
-            }
-
-            #body{
-                margin: 0 15px 0 15px;
-            }
-
-            p.footer{
-                text-align: right;
-                font-size: 11px;
-                border-top: 1px solid #D0D0D0;
-                line-height: 32px;
-                padding: 0 10px 0 10px;
-                margin: 20px 0 0 0;
-            }
-
-            #container{
-                margin: 10px;
-                border: 1px solid #D0D0D0;
-                -webkit-box-shadow: 0 0 8px #D0D0D0;
-            }
-
-            table.lst, td.lstc, th.lsth
-            {
-                border-collapse:collapse;
-                border:1px solid #D0D0D0;
-                padding:5px;
-                text-align:center;
-            }
-            th.lsth
-            {
-                background-color:#f9f9f9;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="<?= base_url()."files/css/style.css"; ?>">
+        
     </head>
     <body>
         <div id="container">
@@ -144,24 +75,45 @@
                                 $redText2 = "";
                             }
                             
+                            if ($att_prsn[$j]->is_late2) {
+                                $redText3 = " style=\"color: #C00000;\"";
+                            } else {
+                                $redText3 = "";
+                            }
+                            
                             if (isset($att_prsn[$j]->ket)) {
                                 $drop_ket = form_dropdown('ket['.$idx_drop.']', $opt_ket, $att_prsn[$j]->ket);
+                            } else if (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar)) {
+                                $drop_ket = form_dropdown('ket['.$idx_drop.']', $opt_ket, $att_prsn[$j]->ket2);
+                            } else if (($att_prsn[$j]->is_late) || ($att_prsn[$j]->is_late2)) {
+                                $drop_ket = form_dropdown('ket['.$idx_drop.']', $opt_ket, $att_prsn[$j]->ket2);
                             } else {
                                 $drop_ket = null;
                             }
                             
                             //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->waktu_telat . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : ($att_prsn[$j]->is_late ? "TERLAMBAT" : "")) . "</td></tr>";
+                            
+                            if (substr($att_prsn[$j]->waktu_telat,0,5) == "00:00") {
+                                    $durasi_telat = '';
+                                } else {
+                                    $durasi_telat = substr($att_prsn[$j]->waktu_telat,0,5);
+                                }
+                            
                             if (isset($drop_ket)) {
-                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . $drop_ket . "</td></tr>";
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\"".$redText3.">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $durasi_telat . "</td><td class=\"lstc\"".$redText2.">" . $drop_ket . "</td></tr>";
                             } else {
-                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . (empty($att_prsn[$j]->jam_masuk) || empty($att_prsn[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") . "</td></tr>";
+                                echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\"".$redText3.">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . $durasi_telat . "</td><td class=\"lstc\"".$redText2.">&nbsp;</td></tr>";
                                 //echo "<tr><td class=\"lstc\">$compare</td><td class=\"lstc\">$txtDay</td><td class=\"lstc\"".$redText.">" . $att_prsn[$j]->jam_masuk . "</td><td class=\"lstc\">" . $att_prsn[$j]->jam_keluar . "</td><td class=\"lstc\"".$redText.">" . substr($att_prsn[$j]->waktu_telat,0,5) . "</td><td class=\"lstc\"".$redText2.">" . ($att_prsn[$j]->is_same ? "TIDAK LENGKAP" : "") . "</td></tr>";
                             }
                             $drop_ket = "";
                             if ($att_prsn[$j]->is_late) {
                                 $ttl_waktu_telat = $ttl_waktu_telat+$att_prsn[$j]->sec_waktu_telat;
                             }
-                            $ttl_hadir++; 
+                            
+                            if ($att_prsn[$j]->counter) {
+                                $ttl_hadir++;
+                            }
+                             
                             if ($a >= $j) {
                                 $j++;
                             }
@@ -182,6 +134,19 @@
                     echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td colspan=\"2\" class=\"lstc\">Total Kehadiran (hari)</td><td class=\"lstc\">$ttl_hadir</td></tr>";
                     ?>
                 </table>
+                <br/>
+                <?php
+                $list_summary = "";
+                foreach ($att_resume as $k) {
+                    $list_summary = $list_summary."<tr><td style=\"padding-left: 5px;\">$k->keterangan</td><td>:</td><td style=\"width: 20px;\">$k->jumlah</td></tr>";
+                }
+                if ($list_summary != "") {
+                    echo "<table class=\"notes\">";
+                    echo "<tr><td colspan=\"3\" style=\"padding-left: 5px;\"><b>SUMMARY</b></td></tr>";
+                    echo $list_summary;
+                    echo "</table>";
+                }
+                ?>
                 <p style="font-size: 4px;"><?= $att_kode ?></p>
                 <p><?= form_submit('save', 'Simpan'); ?></p>
                 <p><a href="<?= site_url("att_rpt/dtl_prsn_xls/$att_filter"); ?>">Eksport ke XLS</a></p>

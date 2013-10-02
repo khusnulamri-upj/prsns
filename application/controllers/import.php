@@ -4,7 +4,9 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
 class Import extends CI_Controller {
-
+    
+    var $mdb_config = array();
+    
     public function index() {
         $config['hostname'] = "Driver={Microsoft Access Driver (*.mdb)};DBQ=D:\UPJ\Attendance\att2000.mdb";
         $config['username'] = "";
@@ -34,13 +36,33 @@ class Import extends CI_Controller {
     }
 
     public function setting() {
-        //$this->session->set_userdata('import_mdb_file_path', 'some_value');
+        $file_path = "D:\UPJ\Attendance\att2000.mdb";
+        $this->session->set_userdata('import_mdb_file_path', $file_path);
+        
+        //echo $file_path;
+        
+        //echo $this->session->userdata('import_mdb_file_path');
+    }
+    
+    public function setting2() {
+        //$file_path = "D:\UPJ\Attendance\att2000.mdb";
+        //$this->session->set_userdata('import_mdb_file_path', $file_path);
+        
+        //echo $file_path;
+        
+        echo $this->session->userdata('import_mdb_file_path');
+    }
+    
+    public function mdb() {
+        $this->load->view('imp_act');
     }
 
-    public function mdb() {
-        //$file_path = $this->session->userdata('import_mdb_file_path');
+    public function mdb_checkinout() {
+        $file_path = $this->session->userdata('import_mdb_file_path');
 
-        $file_path = "D:\UPJ\Attendance\att2000.mdb";
+        echo $file_path;
+
+        //$file_path = "D:\UPJ\Attendance\att2000.mdb";
 
         $config['hostname'] = "Driver={Microsoft Access Driver (*.mdb)}; DBQ=" . $file_path;
         $config['username'] = "";
@@ -56,7 +78,7 @@ class Import extends CI_Controller {
         $config['dbcollat'] = "utf8_general_ci";
 
         $db_mdb = $this->load->database($config, TRUE);
-        $db_mysql = $this->load->database('default', TRUE);
+        $db_mysql = $this->load->database('temporary', TRUE);
         
         echo "load 2 db finish";
         
