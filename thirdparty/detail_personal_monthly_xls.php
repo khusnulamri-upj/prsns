@@ -42,6 +42,8 @@ $jam_telat_masuk = '07:40';
 $jam_tengah = '12:00';
 $jam_keluar = '16:30';
 
+$jam_masuk = $jam_telat_masuk;
+
 //$time_format = "%T";
 $time_format = "%H:%i";
 
@@ -65,7 +67,7 @@ if ($user_id == 'ALL') {
         FROM mdb_departments";
 
     $resultprodi = mysql_query($sqlprodi) or die(mysql_error());
-     
+
     while ($rowprodi = mysql_fetch_array($resultprodi)) {
         unset($objPHPExcel);
 
@@ -92,7 +94,7 @@ if ($user_id == 'ALL') {
         $sheetke = -1;
         //mengambil semua user id
         //$sqlall = "SELECT user_id FROM mdb_userinfo WHERE default_dept_id = 1";
-        $sqlall = "SELECT user_id FROM mdb_userinfo WHERE default_dept_id = ".$rowprodi['dept_id'];
+        $sqlall = "SELECT user_id FROM mdb_userinfo WHERE default_dept_id = " . $rowprodi['dept_id'];
 
         $resultall = mysql_query($sqlall) or die(mysql_error());
 
@@ -106,70 +108,106 @@ if ($user_id == 'ALL') {
             //echo $user_id;
 
             $sqlqry = "SELECT u.name AS nama, d.dept_name AS dept
-        FROM mdb_userinfo u
-        LEFT OUTER JOIN mdb_departments d ON u.default_dept_id = d.dept_id
-        WHERE u.user_id = $user_id
-        LIMIT 1";
+            FROM mdb_userinfo u
+            LEFT OUTER JOIN mdb_departments d ON u.default_dept_id = d.dept_id
+            WHERE u.user_id = $user_id
+            LIMIT 1";
 
             $result = mysql_query($sqlqry) or die(mysql_error());
 
             $rowHeader = mysql_fetch_array($result) or die(mysql_error());
 
-            $sql = " SELECT B.* 
-    FROM (
-    SELECT A.*
-    FROM (
-    SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi, 
-    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
-    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
-    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk')) AS waktu_telat,
-    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_telat_masuk', 1, 0) AS is_late,
-    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
-    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk'))) AS sec_waktu_telat,
-    NULL AS ket
-    FROM mdb_checkinout io
-    WHERE io.user_id = $user_id
-    AND DATE_FORMAT(io.check_time,'%d/%m/%Y') LIKE '%/" . $filter_mmyyyy . "'
-    GROUP BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
-    ORDER BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
-    ) A
-    UNION
-    SELECT
-    k.user_id AS user_id,
-    DATE_FORMAT(k.tgl,'%d/%m/%Y') AS tgl_presensi,
-    NULL AS jam_masuk,
-    NULL AS jam_keluar,
-    NULL AS waktu_telat,
-    NULL AS is_late,
-    NULL AS is_same,
-    NULL AS sec_waktu_telat,
-    o.content AS ket
-    FROM keterangan k
-    LEFT OUTER JOIN opt_keterangan o ON k.opt_keterangan = o.opt_keterangan_id
-    WHERE k.user_id = $user_id
-    AND DATE_FORMAT(k.tgl,'%d/%m/%Y') LIKE '%" . $filter_mmyyyy . "'
-    AND k.expired_time IS NULL
-    GROUP BY DATE_FORMAT(k.tgl,'%d/%m/%Y')
-    ) B
-    ORDER BY B.tgl_presensi";
+            $sql = "select C.*, cc.content AS ket2_detail FROM (SELECT B.*, MAX(B.ket) AS ket2, IF((B.ket = 2) OR (B.ket = 1), 0, 1) AS counter
+            FROM (
+            SELECT A.*
+            FROM (
+            SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi, 
+            IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
+            IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
+            IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_masuk')) AS waktu_telat,
+            IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_masuk', 1, 0) AS is_late,
+            IF(DATE_FORMAT(MAX(io.check_time),'%H:%i') < '$jam_keluar', 1, 0) AS is_late2, 
+            IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
+            TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_masuk'))) AS sec_waktu_telat,
+            NULL AS ket,
+            NULL AS ket_detail
+            FROM mdb_checkinout io
+            WHERE io.user_id = $user_id
+            AND DATE_FORMAT(io.check_time,'%d/%m/%Y') LIKE '%/" . $filter_mmyyyy . "'
+            GROUP BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
+            ORDER BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
+            ) A
+            UNION
+            SELECT k.user_id AS user_id,
+            DATE_FORMAT(k.tgl,'%d/%m/%Y') AS tgl_presensi,
+            NULL AS jam_masuk,
+            NULL AS jam_keluar,
+            NULL AS waktu_telat,
+            NULL AS is_late,
+            NULL AS is_late2,
+            NULL AS is_same,
+            NULL AS sec_waktu_telat,
+            k.opt_keterangan AS ket,
+            o.content AS ket_detail
+            FROM keterangan k
+            LEFT OUTER JOIN opt_keterangan o ON k.opt_keterangan = o.opt_keterangan_id
+            WHERE k.user_id = $user_id
+            AND DATE_FORMAT(k.tgl,'%d/%m/%Y') LIKE '%/" . $filter_mmyyyy . "'
+            AND k.expired_time IS NULL
+            GROUP BY DATE_FORMAT(k.tgl,'%d/%m/%Y')
+            ) B
+            GROUP BY B.tgl_presensi
+            ORDER BY B.tgl_presensi
+            ) C
+            LEFT OUTER JOIN opt_keterangan cc ON c.ket2 = cc.opt_keterangan_id";
 
-            $query = mysql_query($sql) or die(mysql_error());
+            //echo $sql;
+
+            $query = mysql_query($sql);
 
             $index = 0;
-
             $resultArr = array();
 
             while ($row = mysql_fetch_array($query)) {
                 $resultArr[$index] = new stdClass();
+                $resultArr[$index]->user_id = $row['user_id'];
                 $resultArr[$index]->tgl_presensi = $row['tgl_presensi'];
                 $resultArr[$index]->jam_masuk = $row['jam_masuk'];
                 $resultArr[$index]->jam_keluar = $row['jam_keluar'];
                 $resultArr[$index]->waktu_telat = $row['waktu_telat'];
                 $resultArr[$index]->is_late = $row['is_late'];
+                $resultArr[$index]->is_late2 = $row['is_late2'];
                 $resultArr[$index]->is_same = $row['is_same'];
                 $resultArr[$index]->sec_waktu_telat = $row['sec_waktu_telat'];
                 $resultArr[$index]->ket = $row['ket'];
+                $resultArr[$index]->ket_detail = $row['ket_detail'];
+                $resultArr[$index]->ket2 = $row['ket2'];
+                $resultArr[$index]->counter = $row['counter'];
+                $resultArr[$index]->ket2_detail = $row['ket2_detail'];
                 $index++;
+            }
+
+            $sql2 = "SELECT o.opt_keterangan_id AS id, o.content AS keterangan, count(a.user_id) AS jumlah
+                FROM opt_keterangan o
+                LEFT OUTER JOIN (
+                SELECT k.*
+                FROM keterangan k
+                WHERE k.user_id = $user_id
+                AND DATE_FORMAT(k.tgl,'%d/%m/%Y') LIKE '%/$filter_mmyyyy'
+                AND k.expired_time IS NULL
+                ) a ON o.opt_keterangan_id = a.opt_keterangan
+                GROUP BY o.opt_keterangan_id";
+
+            $query2 = mysql_query($sql2);
+
+            $index2 = 0;
+            $resultArr2 = array();
+
+            while ($row2 = mysql_fetch_array($query2)) {
+                $resultArr2[$index2] = new stdClass();
+                $resultArr2[$index2]->keterangan = $row2['keterangan'];
+                $resultArr2[$index2]->jumlah = $row2['jumlah'];
+                $index2++;
             }
             // Add some data
             $objPHPExcel->setActiveSheetIndex($sheetke)
@@ -245,20 +283,35 @@ if ($user_id == 'ALL') {
                 }
 
                 if ($full_date === $compare) {
+                    if ($resultArr[$j]->ket != '') {
+                        $keterangan = $resultArr[$j]->ket_detail;
+                    } else if ($resultArr[$j]->ket2 != '') {
+                        $keterangan = $resultArr[$j]->ket2_detail;
+                    } else {
+                        $keterangan = '';
+                    }
+
                     $col1 = $compare;
                     $col2 = $txtDay;
                     $col3 = $resultArr[$j]->jam_masuk;
                     $col4 = $resultArr[$j]->jam_keluar;
-                    $col5 = ($resultArr[$j]->waktu_telat != '')?substr($resultArr[$j]->waktu_telat,0,5):'';
-                    $col6 = (empty($resultArr[$j]->ket) ? (empty($resultArr[$j]->jam_masuk) || empty($resultArr[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") : $resultArr[$j]->ket);
+                    $col5 = (($resultArr[$j]->waktu_telat != '') AND (substr($resultArr[$j]->waktu_telat, 0, 5) != '00:00')) ? substr($resultArr[$j]->waktu_telat, 0, 5) : '';
+                    //$col6 = (empty($resultArr[$j]->ket_detail) ? (empty($resultArr[$j]->jam_masuk) || empty($resultArr[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") : $resultArr[$j]->ket);
                     //$col6 = (empty($resultArr[$j]->ket)?($resultArr[$j]->is_same ? "TIDAK LENGKAP" : ""):$resultArr[$j]->ket);
-                    if ($resultArr[$j]->is_late) {
+                    $col6 = $keterangan;
+                    if ($col5 != '') {
                         $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 2))->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
                         $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 4))->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
                         $ttl_telat++;
                         $ttl_waktu_telat = $ttl_waktu_telat + $resultArr[$j]->sec_waktu_telat;
                     }
-                    $ttl_hadir++;
+                    if ($resultArr[$j]->is_late2) {
+                        $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 3))->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+                    }
+                    if ($resultArr[$j]->counter) {
+                        $ttl_hadir++;
+                    }
+
                     if ($a >= $j) {
                         $j++;
                     }
@@ -323,7 +376,24 @@ if ($user_id == 'ALL') {
                     ->setCellValue(incCell($cell, 'C', 5), $ttl_hadir);  //ket
             $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 3) . ":" . incCell($cell, 'C', 4))->applyFromArray($styleThinBlackBorderOutline);
             $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 5))->applyFromArray($styleThinBlackBorderOutline);
+
+            //SUMMARY
+            $cell = incCell($cell, 'R', 2);
+            $objPHPExcel->getActiveSheet()
+                    ->setCellValue($cell, 'SUMMARY');
             $cell = incCell($cell, 'R', 1);
+            $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+            $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+
+            foreach ($resultArr2 as $r) {
+                $objPHPExcel->getActiveSheet()->mergeCells($cell . ':' . incCell($cell, 'C', 2));
+                $objPHPExcel->getActiveSheet()
+                        ->setCellValue($cell, $r->keterangan)
+                        ->setCellValue(incCell($cell, 'C', 3), ': ' . $r->jumlah);
+                $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+                $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+                $cell = incCell($cell, 'R', 1);
+            }
 
             $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
             $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
@@ -347,12 +417,12 @@ if ($user_id == 'ALL') {
         $callStartTime = microtime(true);
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-        $objWriter->save('../xls/'.$year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls');
+        $objWriter->save('../xls/' . $year . '_' . $month_formatted . '_' . $rowprodi['dept_name'] . '.xls');
         $callEndTime = microtime(true);
         $callTime = $callEndTime - $callStartTime;
 
         //echo date('H:i:s'), " File written to ", str_replace('.php', '.xls', pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME)), EOL;
-        echo date('H:i:s'), ' '.pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME), " Created ", EOL;
+        echo date('H:i:s'), ' ' . pathinfo($year . '_' . $month_formatted . '_' . $rowprodi['dept_name'] . '.xls', PATHINFO_BASENAME), " Created ", EOL;
         //echo 'Call time to write Workbook was ', sprintf('%.4f', $callTime), " seconds", EOL;
 // Echo memory usage
         //echo date('H:i:s'), ' Current memory usage: ', (memory_get_usage(true) / 1024 / 1024), " MB", EOL;
@@ -360,8 +430,7 @@ if ($user_id == 'ALL') {
     echo "<p><a href=\"../xls\">Lihat Files</a></p>";
     echo "<p><a href=\"../index.php/att_rpt/lst\">Kembali</a></p>";
 } else {
-    $jam_masuk = $jam_telat_masuk;
-    
+
     $sqlqry = "SELECT u.name AS nama, d.dept_name AS dept
     FROM mdb_userinfo u
     LEFT OUTER JOIN mdb_departments d ON u.default_dept_id = d.dept_id
@@ -384,44 +453,44 @@ if ($user_id == 'ALL') {
       GROUP BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
       ORDER BY DATE_FORMAT(io.check_time,'%d/%m/%Y')"; */
 
-    /*$sql = " SELECT B.* 
-    FROM (
-    SELECT A.*
-    FROM (
-    SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi, 
-    IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
-    IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
-    IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk')) AS waktu_telat,
-    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_telat_masuk', 1, 0) AS is_late,
-    IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
-    TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk'))) AS sec_waktu_telat,
-    NULL AS ket
-    FROM mdb_checkinout io
-    WHERE io.user_id = $user_id
-    AND DATE_FORMAT(io.check_time,'%d/%m/%Y') LIKE '%/" . $filter_mmyyyy . "'
-    GROUP BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
-    ORDER BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
-    ) A
-    UNION
-    SELECT
-    k.user_id AS user_id,
-    DATE_FORMAT(k.tgl,'%d/%m/%Y') AS tgl_presensi,
-    NULL AS jam_masuk,
-    NULL AS jam_keluar,
-    NULL AS waktu_telat,
-    NULL AS is_late,
-    NULL AS is_same,
-    NULL AS sec_waktu_telat,
-    o.content AS ket
-    FROM keterangan k
-    LEFT OUTER JOIN opt_keterangan o ON k.opt_keterangan = o.opt_keterangan_id
-    WHERE k.user_id = $user_id
-    AND DATE_FORMAT(k.tgl,'%d/%m/%Y') LIKE '%" . $filter_mmyyyy . "'
-    AND k.expired_time IS NULL
-    GROUP BY DATE_FORMAT(k.tgl,'%d/%m/%Y')
-    ) B
-    ORDER BY B.tgl_presensi";*/
-    
+    /* $sql = " SELECT B.* 
+      FROM (
+      SELECT A.*
+      FROM (
+      SELECT io.user_id, DATE_FORMAT(io.check_time,'%d/%m/%Y') AS tgl_presensi,
+      IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')) AS jam_masuk,
+      IF(TIMEDIFF('$jam_tengah',DATE_FORMAT(MAX(io.check_time),'$time_format')) > 0,'',DATE_FORMAT(MAX(io.check_time),'$time_format')) AS jam_keluar,
+      IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk')) AS waktu_telat,
+      IF(DATE_FORMAT(MIN(io.check_time),'$time_format') > '$jam_telat_masuk', 1, 0) AS is_late,
+      IF(DATE_FORMAT(MIN(io.check_time),'$time_format') = DATE_FORMAT(MAX(io.check_time),'$time_format'), 1, 0) AS is_same,
+      TIME_TO_SEC(IF(TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk') < 0,'',TIMEDIFF(IF(TIMEDIFF(DATE_FORMAT(MIN(io.check_time),'$time_format'),'$jam_tengah') > 0,'',DATE_FORMAT(MIN(io.check_time),'$time_format')),'$jam_telat_masuk'))) AS sec_waktu_telat,
+      NULL AS ket
+      FROM mdb_checkinout io
+      WHERE io.user_id = $user_id
+      AND DATE_FORMAT(io.check_time,'%d/%m/%Y') LIKE '%/" . $filter_mmyyyy . "'
+      GROUP BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
+      ORDER BY DATE_FORMAT(io.check_time,'%d/%m/%Y')
+      ) A
+      UNION
+      SELECT
+      k.user_id AS user_id,
+      DATE_FORMAT(k.tgl,'%d/%m/%Y') AS tgl_presensi,
+      NULL AS jam_masuk,
+      NULL AS jam_keluar,
+      NULL AS waktu_telat,
+      NULL AS is_late,
+      NULL AS is_same,
+      NULL AS sec_waktu_telat,
+      o.content AS ket
+      FROM keterangan k
+      LEFT OUTER JOIN opt_keterangan o ON k.opt_keterangan = o.opt_keterangan_id
+      WHERE k.user_id = $user_id
+      AND DATE_FORMAT(k.tgl,'%d/%m/%Y') LIKE '%" . $filter_mmyyyy . "'
+      AND k.expired_time IS NULL
+      GROUP BY DATE_FORMAT(k.tgl,'%d/%m/%Y')
+      ) B
+      ORDER BY B.tgl_presensi"; */
+
     $sql = "select C.*, cc.content AS ket2_detail FROM (SELECT B.*, MAX(B.ket) AS ket2, IF((B.ket = 2) OR (B.ket = 1), 0, 1) AS counter
             FROM (
             SELECT A.*
@@ -465,14 +534,14 @@ if ($user_id == 'ALL') {
             ORDER BY B.tgl_presensi
             ) C
             LEFT OUTER JOIN opt_keterangan cc ON c.ket2 = cc.opt_keterangan_id";
-    
+
     //echo $sql;
-    
+
     $query = mysql_query($sql);
 
     $index = 0;
     $resultArr = array();
-    
+
     while ($row = mysql_fetch_array($query)) {
         $resultArr[$index] = new stdClass();
         $resultArr[$index]->user_id = $row['user_id'];
@@ -491,7 +560,7 @@ if ($user_id == 'ALL') {
         $resultArr[$index]->ket2_detail = $row['ket2_detail'];
         $index++;
     }
-    
+
     $sql2 = "SELECT o.opt_keterangan_id AS id, o.content AS keterangan, count(a.user_id) AS jumlah
                 FROM opt_keterangan o
                 LEFT OUTER JOIN (
@@ -502,19 +571,19 @@ if ($user_id == 'ALL') {
                 AND k.expired_time IS NULL
                 ) a ON o.opt_keterangan_id = a.opt_keterangan
                 GROUP BY o.opt_keterangan_id";
-    
+
     $query2 = mysql_query($sql2);
 
     $index2 = 0;
     $resultArr2 = array();
-    
+
     while ($row2 = mysql_fetch_array($query2)) {
         $resultArr2[$index2] = new stdClass();
         $resultArr2[$index2]->keterangan = $row2['keterangan'];
         $resultArr2[$index2]->jumlah = $row2['jumlah'];
         $index2++;
     }
-    
+
     /** Error reporting */
     error_reporting(E_ALL);
     ini_set('display_errors', TRUE);
@@ -627,12 +696,12 @@ if ($user_id == 'ALL') {
             } else {
                 $keterangan = '';
             }
-            
+
             $col1 = $compare;
             $col2 = $txtDay;
             $col3 = $resultArr[$j]->jam_masuk;
             $col4 = $resultArr[$j]->jam_keluar;
-            $col5 = (($resultArr[$j]->waktu_telat != '') AND (substr($resultArr[$j]->waktu_telat,0,5) != '00:00'))?substr($resultArr[$j]->waktu_telat,0,5):'';
+            $col5 = (($resultArr[$j]->waktu_telat != '') AND (substr($resultArr[$j]->waktu_telat, 0, 5) != '00:00')) ? substr($resultArr[$j]->waktu_telat, 0, 5) : '';
             //$col6 = (empty($resultArr[$j]->ket_detail) ? (empty($resultArr[$j]->jam_masuk) || empty($resultArr[$j]->jam_keluar) ? "TIDAK LENGKAP" : "") : $resultArr[$j]->ket);
             //$col6 = (empty($resultArr[$j]->ket)?($resultArr[$j]->is_same ? "TIDAK LENGKAP" : ""):$resultArr[$j]->ket);
             $col6 = $keterangan;
@@ -648,7 +717,7 @@ if ($user_id == 'ALL') {
             if ($resultArr[$j]->counter) {
                 $ttl_hadir++;
             }
-            
+
             if ($a >= $j) {
                 $j++;
             }
@@ -713,7 +782,7 @@ if ($user_id == 'ALL') {
             ->setCellValue(incCell($cell, 'C', 5), $ttl_hadir);  //ket
     $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 3) . ":" . incCell($cell, 'C', 4))->applyFromArray($styleThinBlackBorderOutline);
     $objPHPExcel->getActiveSheet()->getStyle(incCell($cell, 'C', 5))->applyFromArray($styleThinBlackBorderOutline);
-    
+
     //SUMMARY
     $cell = incCell($cell, 'R', 2);
     $objPHPExcel->getActiveSheet()
@@ -721,18 +790,18 @@ if ($user_id == 'ALL') {
     $cell = incCell($cell, 'R', 1);
     $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
     $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
-    
+
     foreach ($resultArr2 as $r) {
-        $objPHPExcel->getActiveSheet()->mergeCells($cell.':'.incCell($cell, 'C', 2));
+        $objPHPExcel->getActiveSheet()->mergeCells($cell . ':' . incCell($cell, 'C', 2));
         $objPHPExcel->getActiveSheet()
-            ->setCellValue($cell, $r->keterangan)
-            ->setCellValue(incCell($cell, 'C', 3), ': '.$r->jumlah);
+                ->setCellValue($cell, $r->keterangan)
+                ->setCellValue(incCell($cell, 'C', 3), ': ' . $r->jumlah);
         $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
         $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
         $cell = incCell($cell, 'R', 1);
     }
-    
-    
+
+
     $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
     $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
     $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);

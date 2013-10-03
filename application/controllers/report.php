@@ -25,7 +25,9 @@ class Report extends CI_Controller {
         
         if (empty($user_id)) {
             redirect('filter_personal_monthly', 'location');
-        }
+        }/* else if ($user_id == 'ALL') {
+            redirect(site_url("att_rpt/dtl_prsn_xls/".$month."_".$year."_ALL"), 'location');
+        }*/
         
         $jam_masuk = $this->Parameter->get_value('jam_masuk');
         $jam_keluar = $this->Parameter->get_value('jam_keluar');
