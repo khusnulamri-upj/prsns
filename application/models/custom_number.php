@@ -14,6 +14,7 @@ class Custom_number extends CI_Model {
         if ($value < $limit) {
             return '0'.$value;
         }
+        return $value;
     }
     
 }

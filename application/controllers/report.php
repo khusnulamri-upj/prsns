@@ -3,24 +3,28 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class Entry extends CI_Controller {
+class Report extends CI_Controller {
 
     public function index() {
+        $this->load->view('rpt_lst');
+    }
+        
+    public function filter_personal_monthly() {
         $this->load->model('Personil');
         $this->load->model('Presensi');
         $data['prsnl'] = $this->Personil->get_all_in_array();
         $data['bln'] = $this->Custom_date->get_all_months('indonesia');
         $data['thn'] = $this->Presensi->get_all_years_in_array();
-        $this->load->view('ent_fltr',$data);
+        $this->load->view('rpt_fltr',$data);
     }
     
-    public function view() {
+    public function detail_personal_monthly() {
         $bln = $this->input->post('bulan');
         $thn = $this->input->post('tahun');
         $user_id = $this->input->post('id');
         
         if (empty($user_id)) {
-            redirect('entry', 'location');
+            redirect('filter_personal_monthly', 'location');
         }
         
         $jam_masuk = $this->Parameter->get_value('jam_masuk');
@@ -105,7 +109,8 @@ class Entry extends CI_Controller {
         $data['att_loop'] = days_in_month($bln, $thn);
         $data['att_prsn'] = $query->result();
         
-        if ($query->num_rows > 0) {
+        //if ($query->num_rows > 0) {
+        if ($query->num_rows() > 0) {
             
             $sql = "SELECT o.opt_keterangan_id AS id, o.content AS keterangan, count(a.user_id) AS jumlah
                 FROM opt_keterangan o
@@ -130,13 +135,41 @@ class Entry extends CI_Controller {
             $query = $this->db->query($sql);
             
             $data['att_resume'] = $query->result();
-            $this->load->view('ent_vw', $data);
+            
+            //echo $query->num_rows;
+            
+            $this->load->view('rpt_dtl_prsn_mnthly', $data);
         } else {
             $data['mssg'] = "Data tidak ditemukan.";
+            
+            //echo $query->num_rows;
+            
             $this->load->view('mssg', $data);
         }
     }
-
+    
+    public function detail_personal_monthly_xls() {
+        $filter = $this->uri->segment(3);
+        redirect(base_url("/thirdparty/detail_personal_monthly_xls.php?fltr=$filter"), 'location');
+    }
+    
+    public function filter_department_yearly() {
+        $this->load->model('Department');
+        $this->load->model('Presensi');
+        $data['dept'] = $this->Department->get_all_in_array();
+        $data['thn'] = $this->Presensi->get_all_years_in_array();
+        $this->load->view('rpt_fltr_dept',$data);
+    }
+    
+    public function summary_department_yearly_xls() {
+        $thn = $this->input->post('tahun');
+        $dept_id = $this->input->post('id');
+        $filter = $thn.'_'.$dept_id;
+        redirect(base_url("/thirdparty/summary_department_yearly_xls.php?fltr=$filter"), 'location');
+    }
+    
+    
+    
     public function dtl_prsn_vw() {
         $this->load->database();
 
@@ -249,11 +282,6 @@ class Entry extends CI_Controller {
             $data['mssg'] = "Data tidak ditemukan.";
             $this->load->view('mssg', $data);
         }
-    }
-
-    public function dtl_prsn_xls() {
-        $filter = $this->uri->segment(3);
-        redirect(base_url("/thirdparty/att_dtl_prsn_xls.php?fltr=$filter"), 'location');
     }
 
     public function save_ket() {

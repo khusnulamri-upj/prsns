@@ -38,7 +38,7 @@
 |
 */
 
-$route['default_controller'] = "att_rpt";
+$route['default_controller'] = "menu";
 $route['404_override'] = '';
 
 
