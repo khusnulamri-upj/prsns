@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="<?= base_url()."files/css/style.css"; ?>">
     </head>
     <body>
+        <?php $this->load->view('includes/topinfo'); ?>
         <div id="container">
             <h1>Attendance Information System</h1>
 

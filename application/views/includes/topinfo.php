@@ -1,0 +1,1 @@
+<div id="topInfo">Username : <?php echo $this->session->userdata('username'); ?> | <?php echo anchor(site_url('login/logout'),'Logout'); ?></div>

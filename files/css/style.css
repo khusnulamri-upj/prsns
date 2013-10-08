@@ -80,3 +80,13 @@ table.notes
     font-size: 10px;
     width:180px;
 }
+
+#topInfo {
+    border-bottom: 1px solid white;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: .7em 5.5em .7em 2em;
+    font-size: 11px;
+    text-align: right;
+}

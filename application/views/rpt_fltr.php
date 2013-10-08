@@ -8,6 +8,7 @@
         
     </head>
     <body>
+        <?php $this->load->view('includes/topinfo'); ?>
         <div id="container">
             <h1>Attendance Information System</h1>
 

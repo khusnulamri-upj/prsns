@@ -5,7 +5,11 @@ if (!defined('BASEPATH'))
 class Menu extends CI_Controller {
 
     public function index() {
-        $this->load->view('menu_lst');
+        if ($this->session->userdata('username') == '') {
+            redirect('login');
+        } else {
+            $this->load->view('menu_lst');
+        }
     }
 
 }
