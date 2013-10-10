@@ -21,7 +21,7 @@ class Department extends CI_Model {
             return false;
         }
     }
-    
+      
     function get_all_in_array() {
         $array = array();
         if ($this->get_all() != false) {

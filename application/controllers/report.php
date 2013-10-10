@@ -197,6 +197,19 @@ class Report extends CI_Controller {
             $thn = $this->input->post('tahun');
             $dept_id = $this->input->post('id');
             $filter = $thn . '_' . $dept_id;
+            
+            if (empty($dept_id)) {
+                redirect('report/filter_department_yearly', 'location');
+            } else if ($dept_id == 'ALL') {
+                if (isset($thn)) {
+                    //redirect(site_url("att_rpt/dtl_prsn_xls/".$bln."_".$thn."_ALL"), 'location');
+                    //redirect(base_url("/thirdparty/detail_personal_monthly_xls.php?fltr=".$bln."_".$thn."_ALL"), 'location');
+                    redirect(site_url("report/summary_department_yearly_all/$thn"),'location');
+                }
+                //echo $bln.' '.$thn.' '.$user_id;
+                redirect('report/filter_department_yearly', 'location');
+            }
+            
             redirect(base_url("/thirdparty/summary_department_yearly_xls.php?fltr=$filter"), 'location');
         }
     }
@@ -374,27 +387,63 @@ class Report extends CI_Controller {
             redirect('login');
         } else {
             $this->load->helper('file');
-            delete_files("xls" . DIRECTORY_SEPARATOR, TRUE);
+            delete_files("xls" . DIRECTORY_SEPARATOR . "dpm" . DIRECTORY_SEPARATOR, TRUE);
             
             $data['bln'] = $month;
             $data['thn'] = $year;
             $data['loading_msg'] = 'Membuat File Excel ';
             $data['success_msg'] = 'File Excel Berhasil Dibuat';
             $data['loading2_msg'] = 'Menampilkan Daftar File Excel ';
-            $data['success2_msg'] = 'Daftar File Excel Per Prodi/Bagian :';
+            //$data['success2_msg'] = 'Daftar File Excel Per Prodi/Bagian :';
             $this->load->view('rpt_dtl_prsn_mnthly_all',$data);
         }
     }
     
     public function detail_personal_monthly_all_files() {
-        $this->load->helper('directory');
-        $map = directory_map("xls" . DIRECTORY_SEPARATOR);
-        $list = "<code><ul>";
-        foreach($map as $m) {
-            $list = $list."<li><a href=\"".base_url()."xls/".$m."\">".str_replace(".xls","",$m)."</a></li>";
+        if ($this->session->userdata('username') == '') {
+            echo 'Silahkan refresh halaman ini lagi';
+        } else {
+            $this->load->helper('directory');
+            $map = directory_map("xls" . DIRECTORY_SEPARATOR . "dpm" . DIRECTORY_SEPARATOR);
+            $list = "<code><ul>";
+            foreach ($map as $m) {
+                $list = $list . "<li><a href=\"" . base_url() . "xls/dpm/" . $m . "\">" . str_replace(".xls", "", $m) . "</a></li>";
+            }
+            $list = $list . "</ul></code>";
+            echo $list;
         }
-        $list = $list."</ul></code>";
-        echo $list;
+    }
+    
+    public function summary_department_yearly_all($year) {
+        //echo $month.' '.$year;
+        if ($this->session->userdata('username') == '') {
+            redirect('login');
+        } else {
+            $this->load->helper('file');
+            delete_files("xls" . DIRECTORY_SEPARATOR . "sdy" . DIRECTORY_SEPARATOR, TRUE);
+            
+            $data['thn'] = $year;
+            $data['loading_msg'] = 'Membuat File Excel ';
+            $data['success_msg'] = 'File Excel Berhasil Dibuat';
+            $data['loading2_msg'] = 'Menampilkan Daftar File Excel ';
+            //$data['success2_msg'] = 'Daftar File Excel Per Prodi/Bagian :';
+            $this->load->view('rpt_sum_dept_yearly_all',$data);
+        }
+    }
+    
+    public function summary_department_yearly_all_files() {
+        if ($this->session->userdata('username') == '') {
+            echo 'Silahkan refresh halaman ini lagi';
+        } else {
+            $this->load->helper('directory');
+            $map = directory_map("xls" . DIRECTORY_SEPARATOR . "sdy" . DIRECTORY_SEPARATOR);
+            $list = "<code><ul>";
+            foreach ($map as $m) {
+                $list = $list . "<li><a href=\"" . base_url() . "xls/sdy/" . $m . "\">" . str_replace(".xls", "", $m) . "</a></li>";
+            }
+            $list = $list . "</ul></code>";
+            echo $list;
+        }
     }
 
 }

@@ -13,14 +13,14 @@
                 $.ajax({
                     type: "POST",
                     data: "ALL",
-                    url: "<?= base_url("/thirdparty/detail_personal_monthly_xls.php?fltr=".$bln."_".$thn."_ALL"); ?>",
+                    url: "<?= base_url("/thirdparty/summary_department_yearly_xls.php?fltr=".$thn."_ALL"); ?>",
                     success: function () {
                         $('#loading').html('<?php echo $success_msg; ?>');
                         $('#list_files').html('<?php echo $loading2_msg.' <img src="'.base_url().'files/image/ajax-loader.gif">'; ?>');    
                         $.ajax({
                             type: "POST",
                             data: "ALL",
-                            url: "<?= site_url("report/detail_personal_monthly_all_files"); ?>",
+                            url: "<?= site_url("report/summary_department_yearly_all_files"); ?>",
                             success: function (r) {
                                 $('#loading').html('');
                                 $('#list_files').html(r);
@@ -37,10 +37,10 @@
             <h1>Attendance Information System</h1>
 
             <div id="body">
-                <h3>Laporan Kedatangan dan Kepulangan Semua Karyawan/Dosen</h3>
+                <h3>Laporan Kedatangan dan Kepulangan Semua Prodi/Bagian</h3>
                 <div id="loading"></div>
                 <div id="list_files"></div>
-                <p><a href="<?= site_url("report/filter_personal_monthly"); ?>">Kembali</a></p>
+                <p><a href="<?= site_url("report/filter_department_yearly"); ?>">Kembali</a></p>
             </div>
             
             <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>

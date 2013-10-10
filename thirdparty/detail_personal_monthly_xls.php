@@ -1,5 +1,7 @@
 <?php
 
+set_time_limit(0);
+
 ini_set('memory_limit', '-1');
 
 function incCell($inCell, $mode, $numInc = 1) {
@@ -66,6 +68,12 @@ if ($user_id == 'ALL') {
 
     $sqlprodi = "SELECT dept_id, dept_name
         FROM mdb_departments";
+    
+    /*$sqlprodi = "SELECT d.dept_id, d.dept_name
+            FROM mdb_userinfo u
+            LEFT OUTER JOIN mdb_departments d ON u.default_dept_id = d.dept_id
+            GROUP BY d.dept_id
+            ORDER BY d.dept_name";*/
 
     $resultprodi = mysql_query($sqlprodi) or die(mysql_error());
 
@@ -90,15 +98,13 @@ if ($user_id == 'ALL') {
             ),
         );
 
-
-
         $sheetke = -1;
         //mengambil semua user id
         //$sqlall = "SELECT user_id FROM mdb_userinfo WHERE default_dept_id = 1";
         $sqlall = "SELECT user_id FROM mdb_userinfo WHERE default_dept_id = " . $rowprodi['dept_id'];
-
+        
         $resultall = mysql_query($sqlall) or die(mysql_error());
-
+        
         while ($rowAll = mysql_fetch_array($resultall)) {
             $sheetke++;
             if ($sheetke > 0) {
@@ -443,7 +449,7 @@ if ($user_id == 'ALL') {
         
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         //$objWriter->save('../xls/' . $year . $month_formatted . '_' . $prodi_cleaned . '.xls');
-        $objWriter->save('../xls/' . $prodi_cleaned . '.xls');
+        $objWriter->save('../xls/dpm/' . $prodi_cleaned . '.xls');
         $callEndTime = microtime(true);
         $callTime = $callEndTime - $callStartTime;
 
@@ -846,15 +852,19 @@ if ($user_id == 'ALL') {
     $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
     $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
     $objPHPExcel->getActiveSheet()->getRowDimension('6')->setRowHeight(30);
+    
+    
 
 // Rename worksheet
     //$objPHPExcel->getActiveSheet()->setTitle('attrpt0A.' . $filter);
+    $arr_first_words = explode(' ',trim($nama_edited));
+    $objPHPExcel->getActiveSheet()->setTitle($arr_first_words[0]);
 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
 //$objPHPExcel->setActiveSheetIndex(0);
     // Redirect output to a client’s web browser (Excel5)
     header('Content-Type: application/vnd.ms-excel');
     //header('Content-Disposition: attachment;filename="attrpt0A.xls"');
-    header('Content-Disposition: attachment;filename="' . str_replace('_', '', $filter) . '.xls"');
+    header('Content-Disposition: attachment;filename="dpm' . str_replace('_', '', $filter) . '.xls"');
     header('Cache-Control: max-age=0');
 // If you're serving to IE 9, then the following may be needed
     header('Cache-Control: max-age=1');

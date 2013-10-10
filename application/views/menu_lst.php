@@ -15,6 +15,7 @@
                 <code>
                     <p>+ <a href="<?= site_url("entry"); ?>">Input Presensi Karyawan/Dosen</a></p>
                     <p>+ <a href="<?= site_url("report"); ?>">Laporan Presensi Karyawan/Dosen</a></p>
+                    <p>+ <a href="<?= site_url("import"); ?>">Import Database</a></p>
                 </code>
             </div>
 

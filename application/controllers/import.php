@@ -33,11 +33,13 @@ class Import extends CI_Controller {
         $this->db->close();*/
 
         //$this->load->view('welcome_message');
+        $this->load->view('imp_act');
     }
 
-    public function setting() {
+    public function mdb_setting() {
         //$file_path = "D:\UPJ\Attendance\att2000.mdb";
-        $file_path = "D:\UPJ\Attendance\mdb\att2000.mdb";
+        //$file_path = "D:\UPJ\Attendance\mdb\att2000.mdb";
+        $file_path = $this->input->post('mdbfilepath');
         $this->session->set_userdata('import_mdb_file_path', $file_path);
         
         //echo $file_path;
@@ -45,18 +47,18 @@ class Import extends CI_Controller {
         //echo $this->session->userdata('import_mdb_file_path');
     }
     
-    public function setting2() {
+    /*public function setting2() {
         //$file_path = "D:\UPJ\Attendance\att2000.mdb";
         //$this->session->set_userdata('import_mdb_file_path', $file_path);
         
         //echo $file_path;
         
         echo $this->session->userdata('import_mdb_file_path');
-    }
+    }*/
     
-    public function mdb() {
-        $this->load->view('imp_act');
-    }
+    /*public function mdb() {
+        //$this->load->view('imp_act');
+    }*/
 
     public function mdb_checkinout() {
         $file_path = $this->session->userdata('import_mdb_file_path');
