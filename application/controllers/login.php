@@ -22,12 +22,16 @@ class Login extends CI_Controller {
         
         if ($query) {
             $data = array('username' => $this->input->post('username'),
-                'is_logged_in' => true);
+                'is_logged_in' => true,
+                'credentials' => $this->membership->getMemberId($this->input->post('username'),$this->input->post('password')));
             
             $this->session->set_userdata($data);
             redirect('menu');
         } else {
-            $this->index();
+            $data['css_content'] = 'files/css/login.css';
+            $data['main_content'] = 'lgn_frm';
+            $data['mssg_error'] = 'Username/Password Salah';
+            $this->load->view('includes/template_cstm',$data);
         }
     }
     

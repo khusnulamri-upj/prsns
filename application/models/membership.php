@@ -16,6 +16,7 @@ class Membership extends CI_Model {
         if ($query->num_rows == 1) {
             return true;
         }
+        return false;
     }
     
     function create_member($username,$password,$email_address) {
@@ -28,6 +29,17 @@ class Membership extends CI_Model {
         return $insert;
     }
     
+    function getMemberId($username,$password) {
+        $this->db->where('username',$username);
+        $this->db->where('password',md5($password));
+        $query = $this->db->get('membership');
+        
+        if ($query->num_rows == 1) {
+            $row = $query->row();
+            return $row->membership_id;
+        }
+        return false;
+    }
     
 }
 

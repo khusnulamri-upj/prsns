@@ -12,9 +12,10 @@
             <h1>Attendance Information System</h1>
 
             <div id="body">
+                <h3>Laporan Presensi Karyawan/Dosen</h3>
                 <code>
-                    <p>+ <a href="<?= site_url("report/filter_personal_monthly"); ?>">Laporan Presensi Per Orang Per Bulan</a></p>
-                    <p>+ <a href="<?= site_url("report/filter_department_yearly"); ?>">Laporan Presensi Per Department Per Tahun</a></p>
+                    <p>+ <a href="<?= site_url("report/filter_personal_monthly"); ?>">Laporan Presensi Per Karyawan/Dosen Per Bulan</a></p>
+                    <p>+ <a href="<?= site_url("report/filter_department_yearly"); ?>">Laporan Presensi Per Prodi/Bagian Per Tahun</a></p>
                 </code>
                 <p><a href="<?= site_url("menu"); ?>">Kembali</a></p>
             </div>

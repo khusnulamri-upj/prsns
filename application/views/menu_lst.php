@@ -13,8 +13,8 @@
 
             <div id="body">
                 <code>
-                    <p>+ <a href="<?= site_url("entry"); ?>">Input Presensi Personil</a></p>
-                    <p>+ <a href="<?= site_url("report"); ?>">Laporan Presensi Personil</a></p>
+                    <p>+ <a href="<?= site_url("entry"); ?>">Input Presensi Karyawan/Dosen</a></p>
+                    <p>+ <a href="<?= site_url("report"); ?>">Laporan Presensi Karyawan/Dosen</a></p>
                 </code>
             </div>
 

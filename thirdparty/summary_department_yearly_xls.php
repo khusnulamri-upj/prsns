@@ -69,8 +69,8 @@ $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToWidth(1);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToHeight(1);
 $objPHPExcel->getProperties()->setCreator("Universitas Pembangunan Jaya")
         ->setLastModifiedBy("ICT")
-        ->setTitle("Laporan Kedatangan dan Kepulangan Personil")
-        ->setCategory("Attendance Report");
+        ->setTitle("Laporan Kedatangan & Kepulangan Karyawan/Dosen")
+        ->setCategory("Report");
 
 $styleThinBlackBorderOutline = array(
     'borders' => array(
@@ -125,7 +125,7 @@ foreach ($arr_user_lst as $arr_lst) {
     $rowHeader = mysql_fetch_array($result) or die(mysql_error());
 
     $objPHPExcel->setActiveSheetIndex($sheetkeberapa)
-            ->setCellValue('A1', 'Laporan Kedatangan dan Kepulangan Personil')
+            ->setCellValue('A1', 'Laporan Kedatangan & Kepulangan Karyawan/Dosen')
             ->setCellValue('A2', 'Prodi/Bagian')
             ->setCellValue('C2', ': ' . $rowHeader['nama'])
             ->setCellValue('A3', 'Tahun')

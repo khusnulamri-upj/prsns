@@ -51,6 +51,7 @@ $filter_libur = array('Sat', 'Sun');
 $filter_mmyyyy = (($month < 10) ? "0" . $month : $month) . "/" . $year;
 
 if ($user_id == 'ALL') {
+    ini_set('memory_limit', '-1');
     /** Error reporting */
     error_reporting(E_ALL);
     ini_set('display_errors', TRUE);
@@ -77,8 +78,8 @@ if ($user_id == 'ALL') {
         // Set document properties
         $objPHPExcel->getProperties()->setCreator("Universitas Pembangunan Jaya")
                 ->setLastModifiedBy("ICT")
-                ->setTitle("Laporan Kedatangan dan Kepulangan Personil")
-                ->setCategory("Attendance Report");
+                ->setTitle("Laporan Kedatangan & Kepulangan Karyawan/Dosen")
+                ->setCategory("Report");
 
         $styleThinBlackBorderOutline = array(
             'borders' => array(
@@ -210,14 +211,23 @@ if ($user_id == 'ALL') {
                 $index2++;
             }
             // Add some data
+
+            $nama_edited = ucwords(strtolower(trim($rowHeader['nama'])));
+            $months_indonesia = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
+            if (($month >= 0) && ($month <= 12)) {
+                $month_edited = $months_indonesia[$month - 1];
+            } else {
+                $month_edited = NULL;
+            }
             $objPHPExcel->setActiveSheetIndex($sheetke)
-                    ->setCellValue('A1', 'Laporan Kedatangan dan Kepulangan Personil')
+                    ->setCellValue('A1', 'Laporan Kedatangan & Kepulangan Karyawan/Dosen')
                     ->setCellValue('A2', 'Prodi/Bagian')
                     ->setCellValue('C2', ': ' . $rowHeader['dept'])
                     ->setCellValue('A3', 'Nama')
-                    ->setCellValue('C3', ': ' . $rowHeader['nama'])
+                    ->setCellValue('C3', ': ' . $nama_edited)
                     ->setCellValue('A4', 'Bulan')
-                    ->setCellValue('C4', ': ' . date("F Y", mktime(0, 0, 0, $month + 1, 0, $year)));
+                    ->setCellValue('C4', ': ' . $month_edited . ' ' . $year);
+            //date("F Y", mktime(0, 0, 0, $month + 1, 0, $year)));
 
             $objPHPExcel->getActiveSheet()->mergeCells('A1:F1');
             $objPHPExcel->getActiveSheet()->mergeCells('A2:B2');
@@ -380,10 +390,10 @@ if ($user_id == 'ALL') {
             //SUMMARY
             $cell = incCell($cell, 'R', 2);
             $objPHPExcel->getActiveSheet()
-                    ->setCellValue($cell, 'SUMMARY');
-            $cell = incCell($cell, 'R', 1);
+                    ->setCellValue($cell, 'KETERANGAN');
             $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
             $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+            $cell = incCell($cell, 'R', 1);
 
             foreach ($resultArr2 as $r) {
                 $objPHPExcel->getActiveSheet()->mergeCells($cell . ':' . incCell($cell, 'C', 2));
@@ -395,6 +405,7 @@ if ($user_id == 'ALL') {
                 $cell = incCell($cell, 'R', 1);
             }
 
+
             $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
             $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
             $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
@@ -405,8 +416,10 @@ if ($user_id == 'ALL') {
             $objPHPExcel->getActiveSheet()->getRowDimension('6')->setRowHeight(30);
 
 // Rename worksheet
-            $objPHPExcel->getActiveSheet()->setTitle($user_id);
-
+            //$objPHPExcel->getActiveSheet()->setTitle('H'.($sheetke+1));
+            $arr_first_words = explode(' ',trim($nama_edited));
+            $objPHPExcel->getActiveSheet()->setTitle(($sheetke+1).'-'.$arr_first_words[0]);
+            
             //unset($resultArr);
         }
 
@@ -415,20 +428,33 @@ if ($user_id == 'ALL') {
         // Save Excel 95 file
         //echo date('H:i:s'), " Write to Excel5 format", EOL;
         $callStartTime = microtime(true);
-
+        
+        $prodi_cleaned = $rowprodi['dept_name'];
+        
+        $char_must_cleaned = array(
+            array('char_search' => '&', 'char_replace' => ' '),
+            array('char_search' => '.', 'char_replace' => ''),
+            array('char_search' => ',', 'char_replace' => '')
+        );
+        
+        foreach ($char_must_cleaned as $c) {
+            $prodi_cleaned = str_replace($c['char_search'], $c['char_replace'], $prodi_cleaned);
+        }
+        
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-        $objWriter->save('../xls/' . $year . '_' . $month_formatted . '_' . $rowprodi['dept_name'] . '.xls');
+        //$objWriter->save('../xls/' . $year . $month_formatted . '_' . $prodi_cleaned . '.xls');
+        $objWriter->save('../xls/' . $prodi_cleaned . '.xls');
         $callEndTime = microtime(true);
         $callTime = $callEndTime - $callStartTime;
 
         //echo date('H:i:s'), " File written to ", str_replace('.php', '.xls', pathinfo($year.'_'.$month_formatted.'_'.$rowprodi['dept_name'].'.xls', PATHINFO_BASENAME)), EOL;
-        echo date('H:i:s'), ' ' . pathinfo($year . '_' . $month_formatted . '_' . $rowprodi['dept_name'] . '.xls', PATHINFO_BASENAME), " Created ", EOL;
+        //echo date('H:i:s'), ' ' . pathinfo($year . '_' . $month_formatted . '_' . $rowprodi['dept_name'] . '.xls', PATHINFO_BASENAME), " Created ", EOL;
         //echo 'Call time to write Workbook was ', sprintf('%.4f', $callTime), " seconds", EOL;
 // Echo memory usage
         //echo date('H:i:s'), ' Current memory usage: ', (memory_get_usage(true) / 1024 / 1024), " MB", EOL;
     }
-    echo "<p><a href=\"../xls\">Lihat Files</a></p>";
-    echo "<p><a href=\"../index.php/att_rpt/lst\">Kembali</a></p>";
+    //echo "<p><a href=\"../xls\">Lihat Files</a></p>";
+    //echo "<p><a href=\"../index.php/menu\">Kembali</a></p>";
 } else {
 
     $sqlqry = "SELECT u.name AS nama, d.dept_name AS dept
@@ -603,8 +629,8 @@ if ($user_id == 'ALL') {
 // Set document properties
     $objPHPExcel->getProperties()->setCreator("Universitas Pembangunan Jaya")
             ->setLastModifiedBy("ICT")
-            ->setTitle("Laporan Kedatangan dan Kepulangan Personil")
-            ->setCategory("Attendance Report");
+            ->setTitle("Laporan Kedatangan & Kepulangan Karyawan/Dosen")
+            ->setCategory("Report");
 
     $styleThinBlackBorderOutline = array(
         'borders' => array(
@@ -616,14 +642,24 @@ if ($user_id == 'ALL') {
     );
 
 // Add some data
+
+
+    $nama_edited = ucwords(strtolower(trim($rowHeader['nama'])));
+    $months_indonesia = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
+    if (($month >= 0) && ($month <= 12)) {
+        $month_edited = $months_indonesia[$month - 1];
+    } else {
+        $month_edited = NULL;
+    }
     $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Laporan Kedatangan dan Kepulangan Personil')
+            ->setCellValue('A1', 'Laporan Kedatangan & Kepulangan Karyawan/Dosen')
             ->setCellValue('A2', 'Prodi/Bagian')
             ->setCellValue('C2', ': ' . $rowHeader['dept'])
             ->setCellValue('A3', 'Nama')
-            ->setCellValue('C3', ': ' . $rowHeader['nama'])
+            ->setCellValue('C3', ': ' . $nama_edited)
             ->setCellValue('A4', 'Bulan')
-            ->setCellValue('C4', ': ' . date("F Y", mktime(0, 0, 0, $month + 1, 0, $year)));
+            ->setCellValue('C4', ': ' . $month_edited . ' ' . $year);
+    //date("F Y", mktime(0, 0, 0, $month + 1, 0, $year)));
 
     $objPHPExcel->getActiveSheet()->mergeCells('A1:F1');
     $objPHPExcel->getActiveSheet()->mergeCells('A2:B2');
@@ -786,10 +822,10 @@ if ($user_id == 'ALL') {
     //SUMMARY
     $cell = incCell($cell, 'R', 2);
     $objPHPExcel->getActiveSheet()
-            ->setCellValue($cell, 'SUMMARY');
-    $cell = incCell($cell, 'R', 1);
+            ->setCellValue($cell, 'KETERANGAN');
     $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
     $objPHPExcel->getActiveSheet()->getStyle($cell . ":" . incCell($cell, 'C', 3))->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+    $cell = incCell($cell, 'R', 1);
 
     foreach ($resultArr2 as $r) {
         $objPHPExcel->getActiveSheet()->mergeCells($cell . ':' . incCell($cell, 'C', 2));
@@ -812,14 +848,13 @@ if ($user_id == 'ALL') {
     $objPHPExcel->getActiveSheet()->getRowDimension('6')->setRowHeight(30);
 
 // Rename worksheet
-    $objPHPExcel->getActiveSheet()->setTitle('attrpt0A.' . $filter);
-
-
+    //$objPHPExcel->getActiveSheet()->setTitle('attrpt0A.' . $filter);
 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
 //$objPHPExcel->setActiveSheetIndex(0);
     // Redirect output to a client’s web browser (Excel5)
     header('Content-Type: application/vnd.ms-excel');
-    header('Content-Disposition: attachment;filename="attrpt0A.xls"');
+    //header('Content-Disposition: attachment;filename="attrpt0A.xls"');
+    header('Content-Disposition: attachment;filename="' . str_replace('_', '', $filter) . '.xls"');
     header('Cache-Control: max-age=0');
 // If you're serving to IE 9, then the following may be needed
     header('Cache-Control: max-age=1');

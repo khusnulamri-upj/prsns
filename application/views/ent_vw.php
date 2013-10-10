@@ -19,11 +19,16 @@
                 echo form_hidden('month', $att_mnth);
                 echo form_hidden('year', $att_year);
                 ?>
-                <h3>Laporan Kedatangan dan Kepulangan Personil</h3>
+                <h3>Input Presensi Karyawan/Dosen</h3>
                 <table>
-                    <tr><td style="width:50px;">Bagian</td><td>:</td><td><?= $att_dept ?></td></tr>
-                    <tr><td>Nama</td><td>:</td><td><?= $att_nama ?></td></tr>
-                    <tr><td>Bulan</td><td>:</td><td><?= date("F Y", mktime(0, 0, 0, $att_mnth + 1, 0, $att_year)) ?></td></tr>
+                    <tr><td style="width:70px;">Bagian</td><td>:</td><td><?= $att_dept ?></td></tr>
+                    <tr><td>Nama</td><td>:</td><td><?= ucwords(strtolower($att_nama)) ?></td></tr>
+                    <tr><td>Bulan</td><td>:</td><td>
+                        <?php
+                        //echo date("F Y", mktime(0, 0, 0, $att_mnth + 1, 0, $att_year));
+                        echo $att_mnth_name.' '.$att_year;
+                        ?>
+                        </td></tr>
                 </table>
                 <br/>
                 <table class="lst">
@@ -139,13 +144,21 @@
                 </table>
                 <br/>
                 <?php
-                $list_summary = "";
+                $jum_kolom = 2;
+                $list_summary = "<tr>";
+                $count_kolom = 0;
                 foreach ($att_resume as $k) {
-                    $list_summary = $list_summary."<tr><td style=\"padding-left: 5px;\">$k->keterangan</td><td>:</td><td style=\"width: 20px;\">$k->jumlah</td></tr>";
+                    $count_kolom++;
+                    $list_summary = $list_summary."<td style=\"padding-left: 5px;\"><b>#</b></td><td style=\"width: 133px; padding-left: 5px;\">$k->keterangan</td><td style=\"width: 30px;\">: $k->jumlah</td>";
+                    if ($count_kolom >= $jum_kolom) {
+                        $count_kolom = 0;
+                        $list_summary = $list_summary."</tr><tr>";
+                    }
                 }
+                $list_summary = $list_summary."</tr>";
                 if ($list_summary != "") {
                     echo "<table class=\"notes\">";
-                    echo "<tr><td colspan=\"3\" style=\"padding-left: 5px;\"><b>SUMMARY</b></td></tr>";
+                    echo "<tr><td colspan=\"3\" style=\"padding-left: 5px;\"><b>KETERANGAN</b></td></tr>";
                     echo $list_summary;
                     echo "</table>";
                 }

@@ -35,10 +35,16 @@ class Report extends CI_Controller {
             $user_id = $this->input->post('id');
 
             if (empty($user_id)) {
-                redirect('filter_personal_monthly', 'location');
-            }/* else if ($user_id == 'ALL') {
-              redirect(site_url("att_rpt/dtl_prsn_xls/".$month."_".$year."_ALL"), 'location');
-              } */
+                redirect('report/filter_personal_monthly', 'location');
+            } else if ($user_id == 'ALL') {
+                if (isset($bln) && isset($thn)) {
+                    //redirect(site_url("att_rpt/dtl_prsn_xls/".$bln."_".$thn."_ALL"), 'location');
+                    //redirect(base_url("/thirdparty/detail_personal_monthly_xls.php?fltr=".$bln."_".$thn."_ALL"), 'location');
+                    redirect(site_url("report/detail_personal_monthly_all/$bln/$thn"),'location');
+                }
+                //echo $bln.' '.$thn.' '.$user_id;
+                redirect('report/filter_personal_monthly', 'location');
+            }
 
             $jam_masuk = $this->Parameter->get_value('jam_masuk');
             $jam_keluar = $this->Parameter->get_value('jam_keluar');
@@ -116,6 +122,7 @@ class Report extends CI_Controller {
             $data['att_filter'] = $bln . "_" . $thn . "_" . $user_id;
             $data['att_mnth'] = $bln;
             //$data['att_mnth_name'] = $bln;
+            $data['att_mnth_name'] = $this->Custom_date->get_indonesia_month($bln);
             $data['att_year'] = $thn;
             $data['att_nama'] = $row->name;
             $data['att_dept'] = $row->dept_name;
@@ -314,7 +321,7 @@ class Report extends CI_Controller {
         }
     }
 
-    public function save_ket() {
+    /*public function save_ket() {
         if ($this->session->userdata('username') == '') {
             redirect('login');
         } else {
@@ -359,6 +366,35 @@ class Report extends CI_Controller {
             $data['user_id'] = $this->input->post('user_id');
             $this->load->view('ent_sv_ket', $data);
         }
+    }*/
+    
+    public function detail_personal_monthly_all($month,$year) {
+        //echo $month.' '.$year;
+        if ($this->session->userdata('username') == '') {
+            redirect('login');
+        } else {
+            $this->load->helper('file');
+            delete_files("xls" . DIRECTORY_SEPARATOR, TRUE);
+            
+            $data['bln'] = $month;
+            $data['thn'] = $year;
+            $data['loading_msg'] = 'Membuat File Excel ';
+            $data['success_msg'] = 'File Excel Berhasil Dibuat';
+            $data['loading2_msg'] = 'Menampilkan Daftar File Excel ';
+            $data['success2_msg'] = 'Daftar File Excel Per Prodi/Bagian :';
+            $this->load->view('rpt_dtl_prsn_mnthly_all',$data);
+        }
+    }
+    
+    public function detail_personal_monthly_all_files() {
+        $this->load->helper('directory');
+        $map = directory_map("xls" . DIRECTORY_SEPARATOR);
+        $list = "<code><ul>";
+        foreach($map as $m) {
+            $list = $list."<li><a href=\"".base_url()."xls/".$m."\">".str_replace(".xls","",$m)."</a></li>";
+        }
+        $list = $list."</ul></code>";
+        echo $list;
     }
 
 }

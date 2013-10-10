@@ -13,14 +13,19 @@
             <h1>Attendance Information System</h1>
 
             <div id="body">
-                <h3>Laporan Presensi Personil</h3>
+                <h3>Laporan Presensi Per Prodi/Bagian Per Tahun</h3>
                 <code>
                     <?php
+                    $lst_dept['ALL'] = 'Semua Prodi/Bagian';
+                    foreach ($dept as $key => $value) {
+                        $lst_dept[$key] = $value;
+                    }
+                    
                     echo form_open('report/summary_department_yearly_xls');
                     echo "<table>";
                     echo "<tr>";
                     echo "<td style='width:110px'>" . form_label('Prodi/Bagian', 'dept_id') . "</td>";
-                    echo "<td>" . form_dropdown('id', $dept) . "</td>";
+                    echo "<td>" . form_dropdown('id', $lst_dept) . "</td>";
                     echo "</tr>";
                     echo "<tr>";
                     echo "<td style='width:110px'>" . form_label('Tahun', 'year') . "</td>";

@@ -13,13 +13,13 @@
             <h1>Attendance Information System</h1>
 
             <div id="body">
-                <h3>Input Presensi Personil</h3>
+                <h3>Input Presensi Karyawan/Dosen</h3>
                 <code>
                     <?php
                     echo form_open('entry/view');
                     echo "<table>";
                     echo "<tr>";
-                    echo "<td style='width:110px'>" . form_label('Nama Personil', 'user_id') . "</td>";
+                    echo "<td style='width:110px'>" . form_label('Nama', 'user_id') . "</td>";
                     echo "<td>" . form_dropdown('id', $prsnl) . "</td>";
                     echo "</tr>";
                     echo "<tr>";

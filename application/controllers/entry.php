@@ -106,6 +106,7 @@ class Entry extends CI_Controller {
             $data['att_filter'] = $bln . "_" . $thn . "_" . $user_id;
             $data['att_mnth'] = $bln;
             //$data['att_mnth_name'] = $bln;
+            $data['att_mnth_name'] = $this->Custom_date->get_indonesia_month($bln);
             $data['att_year'] = $thn;
             $data['att_nama'] = $row->name;
             $data['att_dept'] = $row->dept_name;
@@ -283,35 +284,47 @@ class Entry extends CI_Controller {
             $year = $this->input->post('year');
             $user_id = $this->input->post('user_id');
             //print_r($this->input->post('ket'));
-            //$this->db->trans_start();
+            $this->db->trans_start();
 
             foreach ($ket as $key => $value) {
                 $tanggal = $year . "-" . $month . "-" . $key;
 
                 if ((isset($value)) && ($value > 0)) {
                     $key_f = ($key < 10) ? "0" . $key : $key;
+                    
+                    $strcek = "SELECT * FROM keterangan WHERE expired_time IS NULL
+                        AND user_id = $user_id
+                        AND DATE_FORMAT(tgl,'%d/%m/%Y') LIKE '$key_f/$month/$year'
+                        AND opt_keterangan = $value";
 
-                    $str = "UPDATE keterangan SET expired_time = CURRENT_TIMESTAMP WHERE expired_time IS NULL AND user_id = $user_id AND DATE_FORMAT(tgl,'%d/%m/%Y') LIKE '$key_f/$month/$year'";
+                    $querycek = $this->db->query($strcek);
+                    
+                    
+                    if ($querycek->num_rows == 0) {
+                    
+                        $str = "UPDATE keterangan SET expired_time = CURRENT_TIMESTAMP, modified_by = " . $this->session->userdata('credentials') . " WHERE expired_time IS NULL AND user_id = $user_id AND DATE_FORMAT(tgl,'%d/%m/%Y') LIKE '$key_f/$month/$year'";
 
-                    $query = $this->db->query($str);
+                        $query = $this->db->query($str);
 
-                    $data_mysql = array(
-                        'user_id' => $user_id,
-                        'tgl' => $tanggal,
-                        'opt_keterangan' => $value
-                    );
+                        $data_mysql = array(
+                            'user_id' => $user_id,
+                            'tgl' => $tanggal,
+                            'opt_keterangan' => $value,
+                            'created_by' => $this->session->userdata('credentials')
+                        );
 
-                    $this->db->insert('keterangan', $data_mysql);
+                        $this->db->insert('keterangan', $data_mysql);
+                    }
                 } else {
                     $key_f = ($key < 10) ? "0" . $key : $key;
 
-                    $str = "UPDATE keterangan SET expired_time = CURRENT_TIMESTAMP WHERE expired_time IS NULL AND user_id = $user_id AND DATE_FORMAT(tgl,'%d/%m/%Y') LIKE '$key_f/$month/$year'";
+                    $str = "UPDATE keterangan SET expired_time = CURRENT_TIMESTAMP, modified_by = ".$this->session->userdata('credentials')." WHERE expired_time IS NULL AND user_id = $user_id AND DATE_FORMAT(tgl,'%d/%m/%Y') LIKE '$key_f/$month/$year'";
 
                     $query = $this->db->query($str);
                 }
             }
 
-            //$this->db->trans_complete();
+            $this->db->trans_complete();
             $data['month'] = $this->input->post('month');
             $data['year'] = $this->input->post('year');
             $data['user_id'] = $this->input->post('user_id');

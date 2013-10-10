@@ -18,7 +18,7 @@
             
             function importMdb() {
                 $("#loading-status").show();
-                var controllers = ['../import/mdb_checkinout', '../import/mdb'];
+                var controllers = ['../import/mdb_checkinout', '../import/mdb_departments', '../import/mdb_userinfo'];
                 sequenceRequest('../import/setting', controllers);
                 //$("#loading-status").hide();
             }

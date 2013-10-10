@@ -72,7 +72,7 @@
             <div id="body">
                 <p><?=$mssg?></p>
 
-                <p><a href="<?= site_url("att_rpt/lst"); ?>">Kembali</a></p>
+                <p><a href="#" onclick="window.history.back();">Kembali</a></p>
             </div>
 
             <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
