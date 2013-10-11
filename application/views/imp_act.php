@@ -53,7 +53,7 @@
 
             <div id="body">
                 <h3>IMPORT MDB</h3>
-                <p><input type="text" name="mdbfile" id="mdbfile" value="D:\UPJ\Attendance\Data\to_20131009\att2000.mdb" DISABLED style="width: 400px;"/></p>
+                <p><input type="text" name="mdbfile" id="mdbfile" value="<?= $mdbfilepath_local ?>" DISABLED style="width: 400px;"/></p>
                 <p><input type="button" name="import" value="Import MDB" onclick="buttonClick()" /></p>
 
                 <div id="loading_checkinout"></div>

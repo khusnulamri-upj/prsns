@@ -33,10 +33,43 @@ class Import extends CI_Controller {
         $this->db->close();*/
 
         //$this->load->view('welcome_message');
-        $this->load->view('imp_act');
+        $data['mdbfilepath_local'] = $this->Parameter->get_value('mdb_local_file_path');
+        $data['mdbfilepath'] = $this->Parameter->get_value('mdb_server_file_path');
+        $this->load->view('imp_act',$data);
     }
+    
+    public function encrypt_parameter_ftp($hostname,$username,$password) {
+        $this->load->library('encrypt');
+        
+        echo $this->encrypt->encode($hostname).'<br/>';
+        echo $this->encrypt->encode($username).'<br/>';
+        echo $this->encrypt->encode($password).'<br/>';
+    }
+    
+    public function mdb_get_att2000() {
+        $this->load->library('ftp');
+        $this->load->library('encrypt');
+        
+        $config['hostname'] = $this->encrypt->decode($this->Parameter->get_value('FTP_HOSTNAME'));
+        $config['username'] = $this->encrypt->decode($this->Parameter->get_value('FTP_USERNAME'));
+        $config['password'] = $this->encrypt->decode($this->Parameter->get_value('FTP_PASSWORD'));
+        $config['debug'] = TRUE;
+        
+        echo $this->encrypt->decode($this->Parameter->get_value('FTP_HOSTNAME'));
+        echo $this->encrypt->decode($this->Parameter->get_value('FTP_USERNAME'));
+        echo $this->encrypt->decode($this->Parameter->get_value('FTP_PASSWORD'));
+        echo $this->Parameter->get_value('mdb_local_file_path');
+        echo $this->Parameter->get_value('mdb_server_file_path');
+        
+        $this->ftp->connect($config);
 
+        $this->ftp->upload($this->Parameter->get_value('mdb_local_file_path'), $this->Parameter->get_value('mdb_server_file_path'));
+
+        $this->ftp->close();
+    }
+    
     public function mdb_setting() {
+        $this->mdb_get_att2000();
         //$file_path = "D:\UPJ\Attendance\att2000.mdb";
         //$file_path = "D:\UPJ\Attendance\mdb\att2000.mdb";
         $file_path = $this->input->post('mdbfilepath');
@@ -63,7 +96,7 @@ class Import extends CI_Controller {
     public function mdb_checkinout() {
         $file_path = $this->session->userdata('import_mdb_file_path');
 
-        echo $file_path;
+        //echo $file_path;
 
         //$file_path = "D:\UPJ\Attendance\att2000.mdb";
 
@@ -83,7 +116,7 @@ class Import extends CI_Controller {
         $db_mdb = $this->load->database($config, TRUE);
         $db_mysql = $this->load->database('temporary', TRUE);
         
-        echo "load 2 db finish";
+        //echo "load 2 db finish";
         
         //$qry_mdb = $db_mdb->query("SELECT USERID AS user_id, CHECKTIME AS check_time FROM CHECKINOUT");
         $sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
@@ -124,7 +157,7 @@ class Import extends CI_Controller {
         
         $qry_mdb = $db_mdb->query($sql_mdb);
         
-        echo "query mdb finish next trans";
+        //echo "query mdb finish next trans";
         
         $db_mysql->trans_start();
         
@@ -221,7 +254,7 @@ class Import extends CI_Controller {
     public function mdb_userinfo() {
         $file_path = $this->session->userdata('import_mdb_file_path');
 
-        echo $file_path;
+        //echo $file_path;
 
         //$file_path = "D:\UPJ\Attendance\att2000.mdb";
 
@@ -241,7 +274,7 @@ class Import extends CI_Controller {
         $db_mdb = $this->load->database($config, TRUE);
         $db_mysql = $this->load->database('temporary', TRUE);
         
-        echo "load 2 db finish";
+        //echo "load 2 db finish";
         
         //$qry_mdb = $db_mdb->query("SELECT USERID AS user_id, CHECKTIME AS check_time FROM CHECKINOUT");
         /*$sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
@@ -282,7 +315,7 @@ class Import extends CI_Controller {
         
         $qry_mdb = $db_mdb->query($sql_mdb);
         
-        echo "query mdb finish next trans";
+        //echo "query mdb finish next trans";
         
         $db_mysql->trans_start();
         
@@ -399,7 +432,7 @@ class Import extends CI_Controller {
         $db_mdb = $this->load->database($config, TRUE);
         $db_mysql = $this->load->database('temporary', TRUE);
         
-        echo "load 2 db finish";
+        //echo "load 2 db finish";
         
         //$qry_mdb = $db_mdb->query("SELECT USERID AS user_id, CHECKTIME AS check_time FROM CHECKINOUT");
         /*$sql_mdb = "SELECT USERID AS user_id, CHECKTIME AS check_time, 
@@ -440,7 +473,7 @@ class Import extends CI_Controller {
         
         $qry_mdb = $db_mdb->query($sql_mdb);
         
-        echo "query mdb finish next trans";
+        //echo "query mdb finish next trans";
         
         $db_mysql->trans_start();
         
